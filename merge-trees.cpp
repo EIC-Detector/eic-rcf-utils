@@ -23,10 +23,11 @@ enum command_line_options {
 int main(int argc, char *argv[])
 {
 	static const struct option long_options[] {
-		{"out", required_argument, NULL, option_out}, 
-		{"tree", required_argument, NULL, option_tree}, 
-		{"help", no_argument, NULL, option_help},
-		{0, 0, 0, 0}
+		{
+		"out", required_argument, NULL, option_out}, {
+		"tree", required_argument, NULL, option_tree}, {
+		"help", no_argument, NULL, option_help}, {
+		0, 0, 0, 0}
 	};
 
 	const char *out = "Merged.root";
@@ -48,11 +49,12 @@ int main(int argc, char *argv[])
 			tree = optarg;
 			break;
 		case option_help:
-			const char *const help_message = "Usage: merge-trees [OPTIONS]... [FILE]...\n"
-				"Merge trees from specified FILEs into a single ROOT file.\n\n"
-				"--out, --out=\t\t\tpath where to save merged trees\n"
-				"--tree, --tree=\t\t\twhich tree to read from files\n"
-				"--help\t\t\t\tprint this message\n";
+			const char *const help_message =
+			    "Usage: merge-trees [OPTIONS]... [FILE]...\n"
+			    "Merge trees from specified FILEs into a single ROOT file.\n\n"
+			    "--out, --out=\t\t\tpath where to save merged trees\n"
+			    "--tree, --tree=\t\t\twhich tree to read from files\n"
+			    "--help\t\t\t\tprint this message\n";
 			std::cout << help_message;
 			std::exit(EXIT_SUCCESS);
 		}
