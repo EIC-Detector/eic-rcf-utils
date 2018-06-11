@@ -1,20 +1,30 @@
 #!/bin/bash
 
+# Before running this file, update the following:
+# MACROS_DIRECTORY
+# NEVENTS
+# BATCH
+# Email field in JOB
+
+# Directory where g4 Fun4AllSimulations are
 MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
 
+# Name of directory where simulation results are placed
 DNAME=particle-gun-simulation-$(date +%F-%T)
-NEVENTS=1
-BATCH=1
+NEVENTS=100 # number of events to run
+BATCH=1 # Run the events in batches of $BATCH 
+# if you have 100 events that you run in batches of 1, 100 condor jobs will be created running each event in parallel
+
 mkdir $DNAME
 cd $DNAME
 
-BASE_NAME="simulation"
+BASE_NAME="simulation" # Job/shell script files are prefixed with this base
 for i in $(seq 0 $(($NEVENTS/$BATCH))); do
 	CONDOR_EXECUTABLE_NAME=$BASE_NAME-$i.sh
-	CONDOR_OUT_NAME=$BASE_NAME-$i.out
-	CONDOR_ERROR_NAME=$BASE_NAME-$i.err
-	CONDOR_LOG_NAME=$BASE_NAME-$i.log
-	CONDOR_JOB_NAME=$BASE_NAME-$i.job
+	CONDOR_OUT_NAME=$BASE_NAME-$i.out # output of job
+	CONDOR_ERROR_NAME=$BASE_NAME-$i.err # name of file to place stderr of job
+	CONDOR_LOG_NAME=$BASE_NAME-$i.log # name of file to place condor log
+	CONDOR_JOB_NAME=$BASE_NAME-$i.job # name of job file for condor to run
 
 
 	JOB=$"
@@ -30,7 +40,7 @@ for i in $(seq 0 $(($NEVENTS/$BATCH))); do
 	+Experiment     = \"sphenix\"				\n
 	+Job_Type       = \"cas\"				\n
 	Notification    = Always				\n
-	Notify_user     = giorgian.borca-tasciuc@stonybrook.edu \n
+	Notify_user     = my_email@my_domain.my_ext		\n
 	Queue"
 
 	echo -e $JOB | sed "s/^[ \t]*//" > $CONDOR_JOB_NAME
