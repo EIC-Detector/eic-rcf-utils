@@ -1,10 +1,18 @@
 #!/bin/bash
 
-# Before running this file, update the following:
+# Before running this file, update the following IN THIS FILE:
 # MACROS_DIRECTORY
 # NEVENTS
 # BATCH
 # Email field in JOB
+# Before running this file, update the following in Fun4All_G4_EICDetector.C:
+# Set usegun to true
+# Within the if (usegun) block
+#	Update set_pid to your desired particle type. See http://home.fnal.gov/~mrenna/lutp0613man2/node44.html for the particle ids
+#	Update set_name to your desired particle name
+# 	Update set_mom_range to your desired momentum range
+#	Update set_eta_range to your desired eta range (angle particle is shot at perpendicular to the beamline)
+#	Update set_phi_range to your desired phi range (angle particle is shot at looking at the beamline)
 
 # Directory where g4 Fun4AllSimulations are
 MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
