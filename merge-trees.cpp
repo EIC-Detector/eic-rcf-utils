@@ -1,7 +1,12 @@
 /* To compile this program, run:
  * g++ -std=c++11 -o merge-trees merge-trees.cpp `root-config --cflags --libs`
- */
-
+ * Usage: merge-trees [OPTIONS]... [FILE]...
+ * Merge trees from specified FILEs into a single ROOT file.
+ *
+ * --out, --out=		path where to save merged trees
+ * --tree, --tree=		which tree to read from files
+ * --help			print this message
+*/
 #include <iostream>
 #include <cstdlib>
 #include <getopt.h>
@@ -46,8 +51,8 @@ int main(int argc, char *argv[])
 			const char *const help_message = "Usage: merge-trees [OPTIONS]... [FILE]...\n"
 				"Merge trees from specified FILEs into a single ROOT file.\n\n"
 				"--out, --out=\t\t\tpath where to save merged trees\n"
-				"--tree, --tree=\t\t\twhich tree to read from files.\n"
-				"--help\t\t\t\tprint this message.\n";
+				"--tree, --tree=\t\t\twhich tree to read from files\n"
+				"--help\t\t\t\tprint this message\n";
 			std::cout << help_message;
 			std::exit(EXIT_SUCCESS);
 		}
