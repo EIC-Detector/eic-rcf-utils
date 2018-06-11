@@ -16,7 +16,7 @@
 
 # Directory where g4 Fun4AllSimulations are
 MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
-EMAIL='giorgian.borca-tasciuc@stonybrook.edu' # email that condor emails user when jobs are done
+EMAIL='my_email@my_domain.my_ext' # email that condor emails user when jobs are done
 
 # Name of directory where simulation results are placed
 DNAME=particle-gun-simulation-$(date +%F-%T)
@@ -60,7 +60,6 @@ for i in $(seq 0 $(($NEVENTS/$BATCH))); do
 	
 	echo -e "#!/bin/tcsh\ncd $PWD;" > $CONDOR_EXECUTABLE_NAME
 	echo $CONDOR_EXECUTABLE >> $CONDOR_EXECUTABLE_NAME
-	chmod a+x $CONDOR_EXECUTABLE_NAME
-
-#	condor_submit "$CONDOR_JOB_NAME"
+	chmod a+x $CONDOR_EXECUTABLE_NAME 
+	condor_submit "$CONDOR_JOB_NAME"
 done
