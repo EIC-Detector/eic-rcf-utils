@@ -23,11 +23,10 @@ enum command_line_options {
 int main(int argc, char *argv[])
 {
 	static const struct option long_options[] {
-		{
-		"out", required_argument, NULL, option_out}, {
-		"tree", required_argument, NULL, option_tree}, {
-		"help", no_argument, NULL, option_help}, {
-		0, 0, 0, 0}
+		{"out", required_argument, NULL, option_out}, 
+		{"tree", required_argument, NULL, option_tree}, 
+		{"help", no_argument, NULL, option_help}, 
+		{0, 0, 0, 0}
 	};
 
 	const char *out = "Merged.root";
