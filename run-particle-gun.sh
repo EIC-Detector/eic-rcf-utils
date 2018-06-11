@@ -4,7 +4,7 @@
 # MACROS_DIRECTORY
 # NEVENTS
 # BATCH
-# Email field in JOB
+# EMAIL
 # Before running this file, update the following in Fun4All_G4_EICDetector.C:
 # Set usegun to true
 # Within the if (usegun) block
@@ -16,6 +16,7 @@
 
 # Directory where g4 Fun4AllSimulations are
 MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
+EMAIL='my_email@my_domain.my_ext' # email that condor emails user when jobs are done
 
 # Name of directory where simulation results are placed
 DNAME=particle-gun-simulation-$(date +%F-%T)
@@ -48,7 +49,7 @@ for i in $(seq 0 $(($NEVENTS/$BATCH))); do
 	+Experiment     = \"sphenix\"				\n
 	+Job_Type       = \"cas\"				\n
 	Notification    = Always				\n
-	Notify_user     = my_email@my_domain.my_ext		\n
+	Notify_user     = $EMAIL				\n
 	Queue"
 
 	echo -e $JOB | sed "s/^[ \t]*//" > $CONDOR_JOB_NAME
