@@ -16,16 +16,17 @@
 
 # Directory where g4 Fun4AllSimulations are
 MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
-EMAIL='my_email@my_domain.my_ext' # email that condor emails user when jobs are done
+EMAIL='giorgian.borca-tasciuc@stonybrook.edu' # email that condor emails user when jobs are done
 
 # Name of directory where simulation results are placed
 DNAME=particle-gun-simulation-$(date +%F-%T)
-NEVENTS=100 # number of events to run
+NEVENTS=1 # number of events to run
 BATCH=1 # Run the events in batches of $BATCH 
 # if you have 100 events that you run in batches of 1, 100 condor jobs will be created running each event in parallel
 
 mkdir $DNAME
 cd $DNAME
+cp -R $MACROS_DIRECTORY/* ./
 
 BASE_NAME="simulation" # Job/shell script files are prefixed with this base
 for i in $(seq 0 $(($NEVENTS/$BATCH))); do
@@ -57,9 +58,9 @@ for i in $(seq 0 $(($NEVENTS/$BATCH))); do
 	ROOT_FILE="$(pwd)/G4EICDetector-$i.root"
 	CONDOR_EXECUTABLE="time root -b -q Fun4All_G4_EICDetector.C\($BATCH,\\\"/dev/null\\\",\\\"$ROOT_FILE\\\"\)"
 	
-	echo -e "#!/bin/tcsh\ncd $MACROS_DIRECTORY;" > $CONDOR_EXECUTABLE_NAME
+	echo -e "#!/bin/tcsh\ncd $PWD;" > $CONDOR_EXECUTABLE_NAME
 	echo $CONDOR_EXECUTABLE >> $CONDOR_EXECUTABLE_NAME
 	chmod a+x $CONDOR_EXECUTABLE_NAME
 
-	condor_submit "$CONDOR_JOB_NAME"
+#	condor_submit "$CONDOR_JOB_NAME"
 done
