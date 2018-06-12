@@ -62,7 +62,14 @@ done
 
 mkdir $DNAME
 cd $DNAME
-cp -R $MACROS_DIRECTORY/* ./
+cp -R $MACROS_DIRECTORY/* ./ # Copy over necessary macros
+
+# Create cleanup file for after jobs are done to automatically remove old files
+cat > cleanup.sh << EOF
+#!/bin/bash
+rm *.log *.err *.out *.C vis.mac cleanup.sh
+EOF
+chmod u+x cleanup.sh
 
 BASE_NAME="simulation" # Job/shell script files are prefixed with this base
 for i in $(seq 0 $(($NEVENTS/$BATCH))); do
