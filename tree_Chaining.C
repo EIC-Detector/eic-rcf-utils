@@ -21,8 +21,11 @@ void tree_Chaining(
       tmp << i;
       TString s = tmp.str();
       TString fullPath = PATH_TO_DIR_NAME + DIR_NAME + "/G4EICDetector-" +                                 s + ".root_g4" + DETECTOR_NAME + "_eval.root";
+  
       tC->Add(fullPath);
+
+    
     }  
-  tC->Merge(OUTPUT_FILE);
+  tC->CloneTree(-1,"fast");
   f->Write();
 }
