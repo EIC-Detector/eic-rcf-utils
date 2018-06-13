@@ -72,7 +72,7 @@ EOF
 chmod u+x cleanup.sh
 
 BASE_NAME="simulation" # Job/shell script files are prefixed with this base
-for i in $(seq 0 $(($NEVENTS/$BATCH))); do
+for i in $(seq 1 $(($NEVENTS/$BATCH))); do
 	CONDOR_EXECUTABLE_NAME=$BASE_NAME-$i.sh
 	CONDOR_OUT_NAME=$BASE_NAME-$i.out # output of job
 	CONDOR_ERROR_NAME=$BASE_NAME-$i.err # name of file to place stderr of job
