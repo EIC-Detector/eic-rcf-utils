@@ -26,7 +26,7 @@ MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
 EMAIL='my_email@my_domain.my_ext' # email that condor emails user when jobs are done
 
 # Name of directory where simulation results are placed
-DNAME=particle-gun-simulation-$(date +%F-%T)
+DNAME=$(mktemp -d -t particle-gun-simulation.XXX -p .)
 NEVENTS=1 # number of events to run
 BATCH=1 # Run the events in batches of $BATCH 
 # if you have 100 events that you run in batches of 1, 100 condor jobs will be created running each event in parallel
@@ -42,7 +42,7 @@ while true ; do
         -n|--number-events) NEVENTS=$2; shift 2 ;;
         -b|--batch) BATCH=$2 ; shift 2 ;;
         -e|--email) EMAIL=$2; shift 2 ;;
-        -r|--results-directory) DNAME=$2; shift 2 ;;
+        -r|--results-directory) rmdir $DNAME; DNAME=$2; mkdir $DNAME; shift 2 ;;
 	-h|--help) cat << EOF
 Usage: run-particle-gun.sh [OPTIONS]...
 -m,--macros-directory			specifies directory where g4simulation Fun4AllMacroes are
@@ -60,7 +60,7 @@ EOF
     esac
 done
 
-mkdir $DNAME
+
 cd $DNAME
 cp -R $MACROS_DIRECTORY/* ./ # Copy over necessary macros
 
@@ -72,7 +72,7 @@ EOF
 chmod u+x cleanup.sh
 
 BASE_NAME="simulation" # Job/shell script files are prefixed with this base
-for i in $(seq 0 $(($NEVENTS/$BATCH))); do
+for i in $(seq 1 $(($NEVENTS/$BATCH))); do
 	CONDOR_EXECUTABLE_NAME=$BASE_NAME-$i.sh
 	CONDOR_OUT_NAME=$BASE_NAME-$i.out # output of job
 	CONDOR_ERROR_NAME=$BASE_NAME-$i.err # name of file to place stderr of job
