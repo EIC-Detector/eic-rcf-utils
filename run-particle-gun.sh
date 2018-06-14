@@ -1,4 +1,5 @@
 #!/bin/bash
+# IMPORTANT!
 # Before running this file, update the following IN THIS FILE:
 # MACROS_DIRECTORY (although you can pass this in the command-line argument -m or --macros-directory)
 # NEVENTS (although you can pass this in the command-line argument -n or --number-events)
@@ -12,13 +13,15 @@
 # 	Update set_mom_range to your desired momentum range
 #	Update set_eta_range to your desired eta range (angle particle is shot at perpendicular to the beamline)
 #	Update set_phi_range to your desired phi range (angle particle is shot at looking at the beamline)
+# Also if you have $HOME/.login file that you need for setting up your enviroment before your macro runs,
+# uncomment "source $HOME/.login", which can be found near the end of this script
 
 # Usage: run-particle-gun.sh [OPTIONS]...
 # -m,--macros-directory			specifies directory where g4simulation Fun4AllMacroes are
 # -n,--number-events			specifies number of events to run
 # -b,--batch				specifies how many events to run per batch
 # -e,--email				specifies the email that condor emails once jobs are done
-# -r,--results-directory			specifies which directory to store the results in
+# -r,--results-directory		specifies which directory to store the results in
 # -h,--help				displays this message
 
 # Directory where g4simulation Fun4AllSimulations are
@@ -67,7 +70,7 @@ cp -R $MACROS_DIRECTORY/* ./ # Copy over necessary macros
 # Create cleanup file for after jobs are done to automatically remove old files
 cat > cleanup.sh << EOF
 #!/bin/bash
-rm *.log *.err *.out *.C vis.mac cleanup.sh
+rm *.log *.err *.out *.C vis.mac *.sh *.job
 EOF
 chmod u+x cleanup.sh
 
@@ -88,7 +91,7 @@ for i in $(seq 1 $(($NEVENTS/$BATCH))); do
 	Universe        = vanilla				\n
 	Priority        = +0					\n
 	Input           = /dev/null				\n
-	GetEnv          = True					\n
+	GetEnv          = False					\n
 	Initialdir      = $(pwd)				\n
 	+Experiment     = \"sphenix\"				\n
 	+Job_Type       = \"cas\"				\n
@@ -100,9 +103,20 @@ for i in $(seq 1 $(($NEVENTS/$BATCH))); do
 
 	ROOT_FILE="$(pwd)/G4EICDetector-$i.root"
 	CONDOR_EXECUTABLE="time root -b -q Fun4All_G4_EICDetector.C\($BATCH,\\\"/dev/null\\\",\\\"$ROOT_FILE\\\"\)"
-	
-	echo -e "#!/bin/tcsh\ncd $PWD;" > $CONDOR_EXECUTABLE_NAME
-	echo $CONDOR_EXECUTABLE >> $CONDOR_EXECUTABLE_NAME
+
+	cat > $CONDOR_EXECUTABLE_NAME << EOF
+#!/bin/tcsh
+setenv HOME $HOME
+source /etc/csh.login
+foreach i (/etc/profile.d/*.csh)
+   source \$i
+end
+# Uncomment this if you have a login file 
+# source \$HOME/.login
+source /opt/sphenix/core/bin/sphenix_setup.csh
+cd $PWD;
+$CONDOR_EXECUTABLE
+EOF
 	chmod a+x $CONDOR_EXECUTABLE_NAME 
 	condor_submit "$CONDOR_JOB_NAME"
 done
