@@ -116,12 +116,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_1GeV_CEMC=fillHist(h_P_1GeV_CEMC,t_P_1GeV_CEMC,0.3,true);
   h_E_1GeV_CEMC=fillHist(h_E_1GeV_CEMC,t_E_1GeV_CEMC,0.3,true);
 
-  h_P_1GeV_CEMC->SetLineColor(kRed);
-  h_E_1GeV_CEMC->SetLineColor(kBlue);
+  h_E_1GeV_CEMC->SetLineColor(kRed);
+  h_P_1GeV_CEMC->SetLineColor(kBlue);
   
   h_P_1GeV_CEMC->Draw();
   h_E_1GeV_CEMC->Draw("SAME");
-  h_P_1GeV_CEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 1 GeV at CEMC");
+  h_P_1GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 1 GeV at CEMC");
 
   TCanvas *c2_CEMC = new TCanvas("c2_CEMC","2GeV CEMC",600,400);
 
@@ -130,12 +130,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_2GeV_CEMC=fillHist(h_P_2GeV_CEMC,t_P_2GeV_CEMC,0.3,true);
   h_E_2GeV_CEMC=fillHist(h_E_2GeV_CEMC,t_E_2GeV_CEMC,0.3,true);
 
-  h_P_2GeV_CEMC->SetLineColor(kRed);
-  h_E_2GeV_CEMC->SetLineColor(kBlue);
+  h_E_2GeV_CEMC->SetLineColor(kRed);
+  h_P_2GeV_CEMC->SetLineColor(kBlue);
   
   h_P_2GeV_CEMC->Draw();
   h_E_2GeV_CEMC->Draw("SAME");
-  h_P_2GeV_CEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 2 GeV at CEMC");
+  h_P_2GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 2 GeV at CEMC");
   
   TCanvas *c5_CEMC = new TCanvas("c5_CEMC","5GeV CEMC",600,400);
 
@@ -144,12 +144,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_5GeV_CEMC=fillHist(h_P_5GeV_CEMC,t_P_5GeV_CEMC,0.3,true);
   h_E_5GeV_CEMC=fillHist(h_E_5GeV_CEMC,t_E_5GeV_CEMC,0.3,true);
 
-  h_P_5GeV_CEMC->SetLineColor(kRed);
-  h_E_5GeV_CEMC->SetLineColor(kBlue);
+  h_E_5GeV_CEMC->SetLineColor(kRed);
+  h_P_5GeV_CEMC->SetLineColor(kBlue);
   
   h_P_5GeV_CEMC->Draw();
   h_E_5GeV_CEMC->Draw("SAME");
-  h_P_5GeV_CEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 5 GeV at CEMC");
+  h_P_5GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 5 GeV at CEMC");
   
   TCanvas *c10_CEMC = new TCanvas("c10_CEMC","10GeV CEMC",600,400);
 
@@ -158,12 +158,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_10GeV_CEMC=fillHist(h_P_10GeV_CEMC,t_P_10GeV_CEMC,0.3,true);
   h_E_10GeV_CEMC=fillHist(h_E_10GeV_CEMC,t_E_10GeV_CEMC,0.3,true);
 
-  h_P_10GeV_CEMC->SetLineColor(kRed);
-  h_E_10GeV_CEMC->SetLineColor(kBlue);
+  h_E_10GeV_CEMC->SetLineColor(kRed);
+  h_P_10GeV_CEMC->SetLineColor(kBlue);
   
   h_P_10GeV_CEMC->Draw();
   h_E_10GeV_CEMC->Draw("SAME");
-  h_P_10GeV_CEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 10 GeV at CEMC");
+  h_P_10GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 10 GeV at CEMC");
 
   TCanvas *c20_CEMC = new TCanvas("c20_CEMC","20GeV CEMC",600,400);
 
@@ -172,12 +172,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_20GeV_CEMC=fillHist(h_P_20GeV_CEMC,t_P_20GeV_CEMC,0.3,true);
   h_E_20GeV_CEMC=fillHist(h_E_20GeV_CEMC,t_E_20GeV_CEMC,0.3,true);
 
-  h_P_20GeV_CEMC->SetLineColor(kRed);
-  h_E_20GeV_CEMC->SetLineColor(kBlue);
+  h_E_20GeV_CEMC->SetLineColor(kRed);
+  h_P_20GeV_CEMC->SetLineColor(kBlue);
   
   h_P_20GeV_CEMC->Draw();
   h_E_20GeV_CEMC->Draw("SAME");
-  h_P_20GeV_CEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 20 GeV at CEMC");
+  h_P_20GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 20 GeV at CEMC");
   
   /* *
    * Loading histograms and trees for 1, 2, 5, 10, 20 GeV for EEMC
@@ -231,12 +231,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_1GeV_EEMC=fillHist(h_P_1GeV_EEMC,t_P_1GeV_EEMC,0.3,true);
   h_E_1GeV_EEMC=fillHist(h_E_1GeV_EEMC,t_E_1GeV_EEMC,0.3,true);
 
-  h_P_1GeV_EEMC->SetLineColor(kRed);
-  h_E_1GeV_EEMC->SetLineColor(kBlue);
+  h_E_1GeV_EEMC->SetLineColor(kRed);
+  h_P_1GeV_EEMC->SetLineColor(kBlue);
   
   h_P_1GeV_EEMC->Draw();
   h_E_1GeV_EEMC->Draw("SAME");
-  h_P_1GeV_EEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 1 GeV at EEMC");
+  h_P_1GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 1 GeV at EEMC");
 
   TCanvas *c2_EEMC = new TCanvas("c2_EEMC","2GeV EEMC",600,400);
 
@@ -245,12 +245,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_2GeV_EEMC=fillHist(h_P_2GeV_EEMC,t_P_2GeV_EEMC,0.3,true);
   h_E_2GeV_EEMC=fillHist(h_E_2GeV_EEMC,t_E_2GeV_EEMC,0.3,true);
 
-  h_P_2GeV_EEMC->SetLineColor(kRed);
-  h_E_2GeV_EEMC->SetLineColor(kBlue);
+  h_E_2GeV_EEMC->SetLineColor(kRed);
+  h_P_2GeV_EEMC->SetLineColor(kBlue);
   
   h_P_2GeV_EEMC->Draw();
   h_E_2GeV_EEMC->Draw("SAME");
-  h_P_2GeV_EEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 2 GeV at EEMC");
+  h_P_2GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 2 GeV at EEMC");
   
   TCanvas *c5_EEMC = new TCanvas("c5_EEMC","5GeV EEMC",600,400);
 
@@ -259,12 +259,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_5GeV_EEMC=fillHist(h_P_5GeV_EEMC,t_P_5GeV_EEMC,0.3,true);
   h_E_5GeV_EEMC=fillHist(h_E_5GeV_EEMC,t_E_5GeV_EEMC,0.3,true);
 
-  h_P_5GeV_EEMC->SetLineColor(kRed);
-  h_E_5GeV_EEMC->SetLineColor(kBlue);
+  h_E_5GeV_EEMC->SetLineColor(kRed);
+  h_P_5GeV_EEMC->SetLineColor(kBlue);
   
   h_P_5GeV_EEMC->Draw();
   h_E_5GeV_EEMC->Draw("SAME");
-  h_P_5GeV_EEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 5 GeV at EEMC");
+  h_P_5GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 5 GeV at EEMC");
   
   TCanvas *c10_EEMC = new TCanvas("c10_EEMC","10GeV EEMC",600,400);
 
@@ -273,12 +273,12 @@ void energy_EMC_e_pi_plotMacro()
   h_P_10GeV_EEMC=fillHist(h_P_10GeV_EEMC,t_P_10GeV_EEMC,0.3,true);
   h_E_10GeV_EEMC=fillHist(h_E_10GeV_EEMC,t_E_10GeV_EEMC,0.3,true);
 
-  h_P_10GeV_EEMC->SetLineColor(kRed);
-  h_E_10GeV_EEMC->SetLineColor(kBlue);
+  h_E_10GeV_EEMC->SetLineColor(kRed);
+  h_P_10GeV_EEMC->SetLineColor(kBlue);
   
   h_P_10GeV_EEMC->Draw();
   h_E_10GeV_EEMC->Draw("SAME");
-  h_P_10GeV_EEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 10 GeV at EEMC");
+  h_P_10GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 10 GeV at EEMC");
 
   TCanvas *c20_EEMC = new TCanvas("c20_EEMC","20GeV EEMC",600,400);
 
@@ -287,14 +287,13 @@ void energy_EMC_e_pi_plotMacro()
   h_P_20GeV_EEMC=fillHist(h_P_20GeV_EEMC,t_P_20GeV_EEMC,0.3,true);
   h_E_20GeV_EEMC=fillHist(h_E_20GeV_EEMC,t_E_20GeV_EEMC,0.3,true);
 
-  h_P_20GeV_EEMC->SetLineColor(kRed);
-  h_E_20GeV_EEMC->SetLineColor(kBlue);
+  h_E_20GeV_EEMC->SetLineColor(kRed);
+  h_P_20GeV_EEMC->SetLineColor(kBlue);
   
   h_P_20GeV_EEMC->Draw();
   h_E_20GeV_EEMC->Draw("SAME");
-  h_P_20GeV_EEMC->SetTitle("e^{-} (Blue)\n #pi^{-} (Red)\n 20 GeV at EEMC");
+  h_P_20GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 20 GeV at EEMC");
  
-
 }
 
 
