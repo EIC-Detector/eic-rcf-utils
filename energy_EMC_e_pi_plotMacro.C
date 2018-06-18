@@ -4,6 +4,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TCanvas.h"
+#include "TLegend.h"
 
 TTree* loadTree(TString FILE_NAME, TString TREE_NAME)
 {
@@ -43,35 +44,52 @@ TH1F* fillHist(TH1F *THE_HIST, TTree *THE_TREE, Float_t THE_WEIGHT, bool DO_NORM
     { 
       THE_HIST->Scale(1/THE_HIST->GetEntries());
     }
-  THE_HIST->SetXTitle("Measured/True (GeV)");
-  THE_HIST->SetYTitle("entries/#sum entries      ");
-  
+  THE_HIST->SetXTitle("em_cluster_e / true_e");
+  THE_HIST->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
   return THE_HIST;
 }
 
-void histToPNG(TH1F *h1_CEMC, TH1F *h2_CEMC, TH1F *h1_EEMC, TH1F *h2_EEMC, char * title, char * saveFileName)
+void histToPNG(TH1F *h1_CEMC, TH1F *h2_CEMC, TH1F *h1_EEMC, TH1F *h2_EEMC, char * title, char * saveFileName, TString cemc_label, TString eemc_label)
 {
   TCanvas *cPNG = new TCanvas("cPNG",title,1200,400);
   TImage *img = TImage::Create();
   
   cPNG->Divide(2,1);
   cPNG->cd(1);
+  h1_CEMC->GetYaxis()->SetRangeUser(0.0001,1);
+  h2_CEMC->GetYaxis()->SetRangeUser(0.0001,1);
   gPad->SetLogy();
-
   h1_CEMC->Draw();
   h2_CEMC->Draw("SAME");
+  gPad->RedrawAxis();
+
+  auto cemc_legend = new TLegend(0.70,0.9,0.95,0.65,cemc_label);
+  cemc_legend->AddEntry(h1_CEMC,"Pions","l");
+  cemc_legend->AddEntry(h2_CEMC,"Electrons","l");
+  cemc_legend->Draw();
 
   cPNG->cd(2);
+  h1_EEMC->GetYaxis()->SetRangeUser(0.0001,1);
+  h2_EEMC->GetYaxis()->SetRangeUser(0.0001,1);
   gPad->SetLogy();
   h1_EEMC->Draw();
   h2_EEMC->Draw("SAME");
+  gPad->RedrawAxis();
+
+  auto eemc_legend = new TLegend(0.65,0.9,0.9,0.65,eemc_label);
+  eemc_legend->AddEntry(h1_EEMC,"Pions","l");
+  eemc_legend->AddEntry(h2_EEMC,"Electrons","l");
+  eemc_legend->Draw();
 
   img->FromPad(cPNG);
   img->WriteImage(saveFileName);
+  
 
   delete img;
   delete cPNG;
 }
+
+
 
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -94,7 +112,7 @@ void energy_EMC_e_pi_plotMacro()
    * Base Histogram (Recreated from Matching Plots)
    */
 
-  TH1F *h_base = new TH1F("h_base","",25,0.0,1.2);
+  TH1F *h_base = new TH1F("h_base","",25,0.0,2.0);
   TH1F *h_base_e = (TH1F*)h_base->Clone(); 
   TH1F *h_base_p = (TH1F*)h_base->Clone();
   h_base_e->SetLineColor(kRed);
@@ -129,17 +147,17 @@ void energy_EMC_e_pi_plotMacro()
   h_E_10GeV_CEMC->SetName("h_E_10GeV_CEMC");
   h_E_20GeV_CEMC->SetName("h_E_20GeV_CEMC");
 
-  TTree *t_P_1GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions1C.root","ntp_cluster");
-  TTree *t_P_2GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions2C.root","ntp_cluster");
-  TTree *t_P_5GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions5C.root","ntp_cluster");
-  TTree *t_P_10GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions10C.root","ntp_cluster");
-  TTree *t_P_20GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions20C.root","ntp_cluster");
+  TTree *t_P_1GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions1C.root","ntp_cluster");
+  TTree *t_P_2GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions2C.root","ntp_cluster");
+  TTree *t_P_5GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions5C.root","ntp_cluster");
+  TTree *t_P_10GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions10C.root","ntp_cluster");
+  TTree *t_P_20GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions20C.root","ntp_cluster");
   
-  TTree *t_E_1GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons1C.root","ntp_cluster");
-  TTree *t_E_2GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons2C.root","ntp_cluster");
-  TTree *t_E_5GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons5C.root","ntp_cluster");
-  TTree *t_E_10GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons10C.root","ntp_cluster");
-  TTree *t_E_20GeV_CEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons20C.root","ntp_cluster");
+  TTree *t_E_1GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons1C.root","ntp_cluster");
+  TTree *t_E_2GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons2C.root","ntp_cluster");
+  TTree *t_E_5GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons5C.root","ntp_cluster");
+  TTree *t_E_10GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons10C.root","ntp_cluster");
+  TTree *t_E_20GeV_CEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons20C.root","ntp_cluster");
 
   /* EEMC */
   TH1F *h_P_1GeV_EEMC = (TH1F*)h_base_p->Clone();
@@ -166,17 +184,17 @@ void energy_EMC_e_pi_plotMacro()
   h_E_10GeV_EEMC->SetName("h_E_10GeV_EEMC");
   h_E_20GeV_EEMC->SetName("h_E_20GeV_EEMC");
 
-  TTree *t_P_1GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions1E.root","ntp_cluster");
-  TTree *t_P_2GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions2E.root","ntp_cluster");
-  TTree *t_P_5GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions5E.root","ntp_cluster");
-  TTree *t_P_10GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions10E.root","ntp_cluster");
-  TTree *t_P_20GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Pions/Pions20E.root","ntp_cluster");
+  TTree *t_P_1GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions1E.root","ntp_cluster");
+  TTree *t_P_2GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions2E.root","ntp_cluster");
+  TTree *t_P_5GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions5E.root","ntp_cluster");
+  TTree *t_P_10GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions10E.root","ntp_cluster");
+  TTree *t_P_20GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions20E.root","ntp_cluster");
   
-  TTree *t_E_1GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons1E.root","ntp_cluster");
-  TTree *t_E_2GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons2E.root","ntp_cluster");
-  TTree *t_E_5GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons5E.root","ntp_cluster");
-  TTree *t_E_10GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons10E.root","ntp_cluster");
-  TTree *t_E_20GeV_EEMC = loadTree("/sphenix/user/gregtom3/SBU/research/gunEvents/Electrons/Electrons20E.root","ntp_cluster");
+  TTree *t_E_1GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons1E.root","ntp_cluster");
+  TTree *t_E_2GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons2E.root","ntp_cluster");
+  TTree *t_E_5GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons5E.root","ntp_cluster");
+  TTree *t_E_10GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons10E.root","ntp_cluster");
+  TTree *t_E_20GeV_EEMC = loadTree("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons20E.root","ntp_cluster");
   
   /* *
    * Filling Histograms and normalizing
@@ -185,53 +203,43 @@ void energy_EMC_e_pi_plotMacro()
   /* Electrons and Pions 1 GeV CEMC */
   h_P_1GeV_CEMC=fillHist(h_P_1GeV_CEMC,t_P_1GeV_CEMC,0.3,true);
   h_E_1GeV_CEMC=fillHist(h_E_1GeV_CEMC,t_E_1GeV_CEMC,0.3,true);
-  h_P_1GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 1 GeV at CEMC");
   /* Electrons and Pions 2 GeV CEMC */
   h_P_2GeV_CEMC=fillHist(h_P_2GeV_CEMC,t_P_2GeV_CEMC,0.3,true);
-  h_E_2GeV_CEMC=fillHist(h_E_2GeV_CEMC,t_E_2GeV_CEMC,0.3,true);
-  h_P_2GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 2 GeV at CEMC");
+  h_E_2GeV_CEMC=fillHist(h_E_2GeV_CEMC,t_E_2GeV_CEMC,0.3,true); 
   /* Electrons and Pions 5 GeV CEMC */
   h_P_5GeV_CEMC=fillHist(h_P_5GeV_CEMC,t_P_5GeV_CEMC,0.3,true);
   h_E_5GeV_CEMC=fillHist(h_E_5GeV_CEMC,t_E_5GeV_CEMC,0.3,true);
-  h_P_5GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 5 GeV at CEMC");
   /* Electrons and Pions 10 GeV CEMC */
   h_P_10GeV_CEMC=fillHist(h_P_10GeV_CEMC,t_P_10GeV_CEMC,0.3,true);
   h_E_10GeV_CEMC=fillHist(h_E_10GeV_CEMC,t_E_10GeV_CEMC,0.3,true);
-  h_P_10GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 10 GeV at CEMC");
   /* Electrons and Pions 20 GeV CEMC */
   h_P_20GeV_CEMC=fillHist(h_P_20GeV_CEMC,t_P_20GeV_CEMC,0.3,true);
   h_E_20GeV_CEMC=fillHist(h_E_20GeV_CEMC,t_E_20GeV_CEMC,0.3,true);
-  h_P_20GeV_CEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 20 GeV at CEMC");
   /* Electrons and Pions 1 GeV EEMC */
   h_P_1GeV_EEMC=fillHist(h_P_1GeV_EEMC,t_P_1GeV_EEMC,0.3,true);
   h_E_1GeV_EEMC=fillHist(h_E_1GeV_EEMC,t_E_1GeV_EEMC,0.3,true);
-  h_P_1GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 1 GeV at EEMC");
   /* Electrons and Pions 2 GeV EEMC */
   h_P_2GeV_EEMC=fillHist(h_P_2GeV_EEMC,t_P_2GeV_EEMC,0.3,true);
   h_E_2GeV_EEMC=fillHist(h_E_2GeV_EEMC,t_E_2GeV_EEMC,0.3,true);
-  h_P_2GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 2 GeV at EEMC");
   /* Electrons and Pions 5 GeV EEMC */
   h_P_5GeV_EEMC=fillHist(h_P_5GeV_EEMC,t_P_5GeV_EEMC,0.3,true);
   h_E_5GeV_EEMC=fillHist(h_E_5GeV_EEMC,t_E_5GeV_EEMC,0.3,true);
-  h_P_5GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 5 GeV at EEMC");
   /* Electrons and Pions 10 GeV EEMC */
   h_P_10GeV_EEMC=fillHist(h_P_10GeV_EEMC,t_P_10GeV_EEMC,0.3,true);
   h_E_10GeV_EEMC=fillHist(h_E_10GeV_EEMC,t_E_10GeV_EEMC,0.3,true);
-  h_P_10GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 10 GeV at EEMC");
   /* Electrons and Pions 20 GeV EEMC */
   h_P_20GeV_EEMC=fillHist(h_P_20GeV_EEMC,t_P_20GeV_EEMC,0.3,true);
   h_E_20GeV_EEMC=fillHist(h_E_20GeV_EEMC,t_E_20GeV_EEMC,0.3,true);
-  h_P_20GeV_EEMC->SetTitle("e^{-} (Red)\n #pi^{-} (Blue)\n 20 GeV at EEMC");
  
   /* *
    * Saving histograms to PNG 
    */
   
-  histToPNG(h_P_1GeV_CEMC,h_E_1GeV_CEMC,h_P_1GeV_EEMC,h_E_1GeV_EEMC,"1GeV","test1.png");
-  histToPNG(h_P_2GeV_CEMC,h_E_2GeV_CEMC,h_P_2GeV_EEMC,h_E_2GeV_EEMC,"2GeV","test2.png");
-  histToPNG(h_P_5GeV_CEMC,h_E_5GeV_CEMC,h_P_5GeV_EEMC,h_E_5GeV_EEMC,"5GeV","test3.png");
-  histToPNG(h_P_10GeV_CEMC,h_E_10GeV_CEMC,h_P_10GeV_EEMC,h_E_10GeV_EEMC,"10GeV","test4.png");
-  histToPNG(h_P_20GeV_CEMC,h_E_20GeV_CEMC,h_P_20GeV_EEMC,h_E_20GeV_EEMC,"20GeV","test5.png");
+  histToPNG(h_P_1GeV_CEMC,h_E_1GeV_CEMC,h_P_1GeV_EEMC,h_E_1GeV_EEMC,"1GeV","test1.png","CEMC 1GeV","EEMC 1GeV");
+  histToPNG(h_P_2GeV_CEMC,h_E_2GeV_CEMC,h_P_2GeV_EEMC,h_E_2GeV_EEMC,"2GeV","test2.png","CEMC 2GeV","EEMC 2GeV");
+  histToPNG(h_P_5GeV_CEMC,h_E_5GeV_CEMC,h_P_5GeV_EEMC,h_E_5GeV_EEMC,"5GeV","test3.png","CEMC 5GeV","EEMC 5GeV");
+  histToPNG(h_P_10GeV_CEMC,h_E_10GeV_CEMC,h_P_10GeV_EEMC,h_E_10GeV_EEMC,"10GeV","test4.png","CEMC 10GeV","EEMC 10GeV");
+  histToPNG(h_P_20GeV_CEMC,h_E_20GeV_CEMC,h_P_20GeV_EEMC,h_E_20GeV_EEMC,"20GeV","test5.png","CEMC 20GeV","EEMC 20GeV");
   
 
   /* *
