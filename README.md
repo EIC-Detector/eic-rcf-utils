@@ -27,7 +27,7 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     -r,--results-directory  specifies which directory to store the results in
     -h,--help               displays this message
  
-#### Example Usage:
+#### Examples
     run-particle-gun.sh -n 10000 -b 100 -r my-simulation
 
 ## merge-trees
@@ -40,5 +40,5 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     --tree, --tree=  which tree to read from files
     --help           print this message
 
-### Example usage:
+#### Examples
     merge-trees --out my-simulation.root --tree ntp_cluster *cemc*
