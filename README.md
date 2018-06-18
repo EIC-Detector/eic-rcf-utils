@@ -20,7 +20,7 @@
 
     Usage: run-particle-gun.sh [OPTIONS]...
     -m,--macros-directory   specifies directory where g4simulation Fun4AllMacroes are
-    -n,--number-events			specifies number of events to run
+    -n,--number-events      specifies number of events to run
     -b,--batch              specifies how many events to run per batch
     -e,--email              specifies the email that condor emails once jobs are done
     -r,--results-directory  specifies which directory to store the results in
