@@ -13,7 +13,7 @@
 #define NELEMS(arr) (sizeof(arr)/sizeof(arr[0]))
 
 /* Directory where data is stored for plots */
-const data_directory =
+const char *const data_directory =
     "/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies";
 /* The energy levels we have in GeV */
 const static int energy_levels[] = { 1, 2, 5, 10, 20 };
@@ -39,7 +39,7 @@ char *generate_save_name(const int particle_energy_gev);
 char *generate_title(const int particle_energy_gev);
 char *generate_label(const int particle_energy_gev, const detector d);
 
-void energy_EMC_e_pi_plotMacro()
+void Plot_Energy_EMC()
 {
 
 	/* 
