@@ -29,6 +29,7 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     -h,--help               displays this message
  
 ##### Examples
+Run a simulation of 10,000 events in batches of 100, storing the results into the directory `my-simulation`
     run-particle-gun.sh -n 10000 -b 100 -r my-simulation
 
 ### merge-trees
@@ -42,6 +43,7 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     --help           print this message
 
 ##### Examples
+Merge the cluster calorimeter data (`ntp_cluster`) from each batch into one file named `my-simulation.root`
     merge-trees --out my-simulation.root --tree ntp_cluster *cemc*
     
 ## Analysis Macros
