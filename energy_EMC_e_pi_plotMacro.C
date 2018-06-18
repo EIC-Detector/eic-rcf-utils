@@ -1,11 +1,117 @@
 #include <iostream>
 #include <cstdlib>
 #include <memory>
+#include <sstream>
+#include <string>
+#include <cstring>
 
 #include "TFile.h"
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+
+#define NELEMS(arr) (sizeof(arr)/sizeof(arr[0]))
+
+/* Directory where data is stored for plots */
+const data_directory =
+    "/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies";
+/* The energy levels we have in GeV */
+const static int energy_levels[] = { 1, 2, 5, 10, 20 };
+
+/* The particle types we have */
+enum particle_type { electron, pion };
+/* The detectors we have */
+enum detector { cemc, eemc };
+
+TTree *load_tree(const char *const file_name, const char *const tree_name);
+void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
+		    const bool normalize);
+void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
+		      TH1F * const h_pion_EEMC, TH1F * const h_electron_EEMC,
+		      const char *const title, const char *const save_file_name,
+		      const char *const cemc_label,
+		      const char *const eemc_label);
+char *generate_name(const particle_type p, const int particle_energy_gev,
+		    const detector d);
+char *generate_file_path(const particle_type p,
+			 const int particle_energy_gev, const detector d);
+char *generate_save_name(const int particle_energy_gev);
+char *generate_title(const int particle_energy_gev);
+char *generate_label(const int particle_energy_gev, const detector d);
+
+void energy_EMC_e_pi_plotMacro()
+{
+
+	/* 
+	 * sPHENIX Style
+	 */
+
+	gROOT->LoadMacro
+	    ("/sphenix/user/gregtom3/SBU/research/macros/macros/sPHENIXStyle/sPhenixStyle.C");
+	SetsPhenixStyle();
+
+	gROOT->SetBatch(kTRUE);
+
+	/**
+	 * Base Histogram (Recreated from Matching Plots)
+	 */
+
+	TH1F *h_base = new TH1F("h_base", "", 25, 0.0, 2.0);
+	TH1F *h_base_e = (TH1F *) h_base->Clone();
+	TH1F *h_base_p = (TH1F *) h_base->Clone();
+	h_base_e->SetLineColor(kRed);
+	h_base_p->SetLineColor(kBlue);
+
+	/* iterate through energy levels and create plots for Pions and Electrons
+	 * in the CEMC and EEMC detectors */
+	for (size_t i = 0; i < NELEMS(energy_levels); ++i) {
+		/* CEMC */
+		TH1F *const h_pion_cemc = h_base_p->Clone();
+		TH1F *const h_electron_cemc = h_base_e->Clone();
+		h_pion_cemc->SetName(generate_name
+				     (pion, energy_levels[i], cemc));
+		h_electron_cemc->SetName(generate_name
+					 (electron, energy_levels[i], cemc));
+
+		TTree *const t_pion_cemc =
+		    load_tree(generate_file_path(pion, energy_levels[i], cemc),
+			      "ntp_cluster");
+		TTree *const t_electron_cemc =
+		    load_tree(generate_file_path
+			      (electron, energy_levels[i], cemc),
+			      "ntp_cluster");
+
+		fill_histogram(h_pion_cemc, t_pion_cemc, 0.3, true);
+		fill_histogram(h_electron_cemc, t_electron_cemc, 0.3, true);
+
+		/* EEMC */
+		TH1F *const h_pion_eemc = h_base_p->Clone();
+		TH1F *const h_electron_eemc = h_base_e->Clone();
+		h_pion_eemc->SetName(generate_name
+				     (pion, energy_levels[i], eemc));
+		h_electron_eemc->SetName(generate_name
+					 (electron, energy_levels[i], eemc));
+
+		TTree *const t_pion_eemc =
+		    load_tree(generate_file_path(pion, energy_levels[i], eemc),
+			      "ntp_cluster");
+		TTree *const t_electron_eemc =
+		    load_tree(generate_file_path
+			      (electron, energy_levels[i], eemc),
+			      "ntp_cluster");
+
+		fill_histogram(h_pion_eemc, t_pion_eemc, 0.3, true);
+		fill_histogram(h_electron_eemc, t_electron_eemc, 0.3, true);
+
+		histogram_to_png(h_pion_cemc, h_electron_cemc, h_pion_eemc,
+				 h_electron_eemc,
+				 generate_title(energy_levels[i]),
+				 generate_save_name(energy_levels[i]),
+				 generate_label(energy_levels[i], cemc),
+				 generate_label(energy_levels[i], eemc));
+	}
+
+}
 
 TTree *load_tree(const char *const file_name, const char *const tree_name)
 {
@@ -87,308 +193,97 @@ void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 	delete img;
 }
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
- *                                Main Code
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-
-void energy_EMC_e_pi_plotMacro()
+char *strdup(const char *s)
 {
+	char *const t = new char[strlen(s) + 1];
+	return strcpy(t, s);
+}
 
-	/* *
-	 * sPHENIX Style
-	 */
+char *generate_name(const particle_type p, const int particle_energy_gev,
+		    const detector d)
+{
+	std::stringstream name;
+	name << "Histogram";
+	switch (p) {
+	case electron:
+		name << "_Electron";
+		break;
+	case pion:
+		name << "_Pion";
+		break;
+	}
 
-	gROOT->LoadMacro
-	    ("/sphenix/user/gregtom3/SBU/research/macros/macros/sPHENIXStyle/sPhenixStyle.C");
-	SetsPhenixStyle();
+	name << "_" << particle_energy_gev << "GeV";
+	switch (d) {
+	case cemc:
+		name << "_CEMC";
+		break;
+	case eemc:
+		name << "_EEMC";
+		break;
+	}
 
-	gROOT->SetBatch(kTRUE);
+	return strdup(name.str().c_str());
+}
 
-	/* *
-	 * Base Histogram (Recreated from Matching Plots)
-	 */
+char *generate_file_path(const particle_type p,
+			 const int particle_energy_gev, const detector d)
+{
+	std::stringstream path;
+	path << data_directory;
+	switch (p) {
+	case electron:
+		path << "/Electrons/Electrons";
+		break;
+	case pion:
+		path << "/Pions/Pions";
+		break;
+	}
 
-	TH1F *h_base = new TH1F("h_base", "", 25, 0.0, 2.0);
-	TH1F *h_base_e = (TH1F *) h_base->Clone();
-	TH1F *h_base_p = (TH1F *) h_base->Clone();
-	h_base_e->SetLineColor(kRed);
-	h_base_p->SetLineColor(kBlue);
+	path << particle_energy_gev;
+	switch (d) {
+	case cemc:
+		path << "C";
+		break;
+	case eemc:
+		path << "E";
+		break;
+	}
 
-	/* *
-	 * Loading histograms and trees for CEMC and EEMC, electrons and pions, [1,2,5,10,20] GeV 
-	 */
+	path << ".root";
 
-	/* CEMC */
-	TH1F *h_P_1GeV_CEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_2GeV_CEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_5GeV_CEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_10GeV_CEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_20GeV_CEMC = (TH1F *) h_base_p->Clone();
+	return strdup(path.str().c_str());
+}
 
-	TH1F *h_E_1GeV_CEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_2GeV_CEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_5GeV_CEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_10GeV_CEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_20GeV_CEMC = (TH1F *) h_base_e->Clone();
+char *generate_save_name(const int particle_energy_gev)
+{
+	std::stringstream name;
+	name << "Electron-Pion-" << particle_energy_gev << "GeV-CEMC-EEMC.png";
 
-	h_P_1GeV_CEMC->SetName("h_P_1GeV_CEMC");
-	h_P_2GeV_CEMC->SetName("h_P_2GeV_CEMC");
-	h_P_5GeV_CEMC->SetName("h_P_5GeV_CEMC");
-	h_P_10GeV_CEMC->SetName("h_P_10GeV_CEMC");
-	h_P_20GeV_CEMC->SetName("h_P_20GeV_CEMC");
+	return strdup(name.str().c_str());
+}
 
-	h_E_1GeV_CEMC->SetName("h_E_1GeV_CEMC");
-	h_E_2GeV_CEMC->SetName("h_E_2GeV_CEMC");
-	h_E_5GeV_CEMC->SetName("h_E_5GeV_CEMC");
-	h_E_10GeV_CEMC->SetName("h_E_10GeV_CEMC");
-	h_E_20GeV_CEMC->SetName("h_E_20GeV_CEMC");
+char *generate_title(const int particle_energy_gev)
+{
+	std::stringstream title;
+	title << particle_energy_gev << "GeV";
 
-	TTree *t_P_1GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions1C.root",
-	     "ntp_cluster");
-	TTree *t_P_2GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions2C.root",
-	     "ntp_cluster");
-	TTree *t_P_5GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions5C.root",
-	     "ntp_cluster");
-	TTree *t_P_10GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions10C.root",
-	     "ntp_cluster");
-	TTree *t_P_20GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions20C.root",
-	     "ntp_cluster");
+	return strdup(title.str().c_str());
+}
 
-	TTree *t_E_1GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons1C.root",
-	     "ntp_cluster");
-	TTree *t_E_2GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons2C.root",
-	     "ntp_cluster");
-	TTree *t_E_5GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons5C.root",
-	     "ntp_cluster");
-	TTree *t_E_10GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons10C.root",
-	     "ntp_cluster");
-	TTree *t_E_20GeV_CEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons20C.root",
-	     "ntp_cluster");
+char *generate_label(const int particle_energy_gev, const detector d)
+{
+	std::stringstream label;
 
-	/* EEMC */
-	TH1F *h_P_1GeV_EEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_2GeV_EEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_5GeV_EEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_10GeV_EEMC = (TH1F *) h_base_p->Clone();
-	TH1F *h_P_20GeV_EEMC = (TH1F *) h_base_p->Clone();
+	switch (d) {
+	case cemc:
+		label << "CEMC ";
+		break;
+	case eemc:
+		label << "EEMC ";
+		break;
+	}
+	label << particle_energy_gev << "GeV";
 
-	TH1F *h_E_1GeV_EEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_2GeV_EEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_5GeV_EEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_10GeV_EEMC = (TH1F *) h_base_e->Clone();
-	TH1F *h_E_20GeV_EEMC = (TH1F *) h_base_e->Clone();
-
-	h_P_1GeV_EEMC->SetName("h_P_1GeV_EEMC");
-	h_P_2GeV_EEMC->SetName("h_P_2GeV_EEMC");
-	h_P_5GeV_EEMC->SetName("h_P_5GeV_EEMC");
-	h_P_10GeV_EEMC->SetName("h_P_10GeV_EEMC");
-	h_P_20GeV_EEMC->SetName("h_P_20GeV_EEMC");
-
-	h_E_1GeV_EEMC->SetName("h_E_1GeV_EEMC");
-	h_E_2GeV_EEMC->SetName("h_E_2GeV_EEMC");
-	h_E_5GeV_EEMC->SetName("h_E_5GeV_EEMC");
-	h_E_10GeV_EEMC->SetName("h_E_10GeV_EEMC");
-	h_E_20GeV_EEMC->SetName("h_E_20GeV_EEMC");
-
-	TTree *t_P_1GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions1E.root",
-	     "ntp_cluster");
-	TTree *t_P_2GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions2E.root",
-	     "ntp_cluster");
-	TTree *t_P_5GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions5E.root",
-	     "ntp_cluster");
-	TTree *t_P_10GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions10E.root",
-	     "ntp_cluster");
-	TTree *t_P_20GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Pions/Pions20E.root",
-	     "ntp_cluster");
-
-	TTree *t_E_1GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons1E.root",
-	     "ntp_cluster");
-	TTree *t_E_2GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons2E.root",
-	     "ntp_cluster");
-	TTree *t_E_5GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons5E.root",
-	     "ntp_cluster");
-	TTree *t_E_10GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons10E.root",
-	     "ntp_cluster");
-	TTree *t_E_20GeV_EEMC =
-	    load_tree
-	    ("/sphenix/user/gregtom3/data/Summer2018/ECAL_energy_studies/Electrons/Electrons20E.root",
-	     "ntp_cluster");
-
-	/* *
-	 * Filling Histograms and normalizing
-	 */
-
-	/* Electrons and Pions 1 GeV CEMC */
-	fill_histogram(h_P_1GeV_CEMC, t_P_1GeV_CEMC, 0.3, true);
-	fill_histogram(h_E_1GeV_CEMC, t_E_1GeV_CEMC, 0.3, true);
-	/* Electrons and Pions 2 GeV CEMC */
-	fill_histogram(h_P_2GeV_CEMC, t_P_2GeV_CEMC, 0.3, true);
-	fill_histogram(h_E_2GeV_CEMC, t_E_2GeV_CEMC, 0.3, true);
-	/* Electrons and Pions 5 GeV CEMC */
-	fill_histogram(h_P_5GeV_CEMC, t_P_5GeV_CEMC, 0.3, true);
-	fill_histogram(h_E_5GeV_CEMC, t_E_5GeV_CEMC, 0.3, true);
-	/* Electrons and Pions 10 GeV CEMC */
-	fill_histogram(h_P_10GeV_CEMC, t_P_10GeV_CEMC, 0.3, true);
-	fill_histogram(h_E_10GeV_CEMC, t_E_10GeV_CEMC, 0.3, true);
-	/* Electrons and Pions 20 GeV CEMC */
-	fill_histogram(h_P_20GeV_CEMC, t_P_20GeV_CEMC, 0.3, true);
-	fill_histogram(h_E_20GeV_CEMC, t_E_20GeV_CEMC, 0.3, true);
-	/* Electrons and Pions 1 GeV EEMC */
-	fill_histogram(h_P_1GeV_EEMC, t_P_1GeV_EEMC, 0.3, true);
-	fill_histogram(h_E_1GeV_EEMC, t_E_1GeV_EEMC, 0.3, true);
-	/* Electrons and Pions 2 GeV EEMC */
-	fill_histogram(h_P_2GeV_EEMC, t_P_2GeV_EEMC, 0.3, true);
-	fill_histogram(h_E_2GeV_EEMC, t_E_2GeV_EEMC, 0.3, true);
-	/* Electrons and Pions 5 GeV EEMC */
-	fill_histogram(h_P_5GeV_EEMC, t_P_5GeV_EEMC, 0.3, true);
-	fill_histogram(h_E_5GeV_EEMC, t_E_5GeV_EEMC, 0.3, true);
-	/* Electrons and Pions 10 GeV EEMC */
-	fill_histogram(h_P_10GeV_EEMC, t_P_10GeV_EEMC, 0.3, true);
-	fill_histogram(h_E_10GeV_EEMC, t_E_10GeV_EEMC, 0.3, true);
-	/* Electrons and Pions 20 GeV EEMC */
-	fill_histogram(h_P_20GeV_EEMC, t_P_20GeV_EEMC, 0.3, true);
-	fill_histogram(h_E_20GeV_EEMC, t_E_20GeV_EEMC, 0.3, true);
-
-	/* *
-	 * Saving histograms to PNG 
-	 */
-
-	histogram_to_png(h_P_1GeV_CEMC, h_E_1GeV_CEMC, h_P_1GeV_EEMC,
-			 h_E_1GeV_EEMC, "1GeV", "test1.png", "CEMC 1GeV",
-			 "EEMC 1GeV");
-	histogram_to_png(h_P_2GeV_CEMC, h_E_2GeV_CEMC, h_P_2GeV_EEMC,
-			 h_E_2GeV_EEMC, "2GeV", "test2.png", "CEMC 2GeV",
-			 "EEMC 2GeV");
-	histogram_to_png(h_P_5GeV_CEMC, h_E_5GeV_CEMC, h_P_5GeV_EEMC,
-			 h_E_5GeV_EEMC, "5GeV", "test3.png", "CEMC 5GeV",
-			 "EEMC 5GeV");
-	histogram_to_png(h_P_10GeV_CEMC, h_E_10GeV_CEMC, h_P_10GeV_EEMC,
-			 h_E_10GeV_EEMC, "10GeV", "test4.png", "CEMC 10GeV",
-			 "EEMC 10GeV");
-	histogram_to_png(h_P_20GeV_CEMC, h_E_20GeV_CEMC, h_P_20GeV_EEMC,
-			 h_E_20GeV_EEMC, "20GeV", "test5.png", "CEMC 20GeV",
-			 "EEMC 20GeV");
-
-	/* *
-	 * Comparison of detector performance as a function of particle and energy
-	 */
-
-	/* Pions CEMC */
-	h_P_1GeV_CEMC->SetTitle
-	    ("#pi^{-} CEMC - 1GeV(B):2GeV(G):5GeV(Y):10GeV(O):20GeV(R)");
-	h_P_1GeV_CEMC->SetLineColor(kBlue);
-	h_P_2GeV_CEMC->SetLineColor(kGreen);
-	h_P_5GeV_CEMC->SetLineColor(kYellow);
-	h_P_10GeV_CEMC->SetLineColor(kOrange);
-	h_P_20GeV_CEMC->SetLineColor(kRed);
-	TCanvas *c1 = new TCanvas("c1", "Pions in CEMC", 600, 400);
-	TImage *t1 = TImage::Create();
-	c1->SetLogy();
-	h_P_1GeV_CEMC->Draw();
-	h_P_2GeV_CEMC->Draw("SAME");
-	h_P_5GeV_CEMC->Draw("SAME");
-	h_P_10GeV_CEMC->Draw("SAME");
-	h_P_20GeV_CEMC->Draw("SAME");
-	t1->FromPad(c1);
-	t1->WriteImage("P_CEMC.png");
-	delete c1;
-	delete t1;
-	/* Electrons CEMC */
-	h_E_1GeV_CEMC->SetTitle
-	    ("e^{-} CEMC - 1GeV(B):2GeV(G):5GeV(Y):10GeV(O):20GeV(R)");
-	h_E_1GeV_CEMC->SetLineColor(kBlue);
-	h_E_2GeV_CEMC->SetLineColor(kGreen);
-	h_E_5GeV_CEMC->SetLineColor(kYellow);
-	h_E_10GeV_CEMC->SetLineColor(kOrange);
-	h_E_20GeV_CEMC->SetLineColor(kRed);
-	TCanvas *c2 = new TCanvas("c2", "Electrons in CEMC", 600, 400);
-	TImage *t2 = TImage::Create();
-	c2->SetLogy();
-	h_E_1GeV_CEMC->Draw();
-	h_E_2GeV_CEMC->Draw("SAME");
-	h_E_5GeV_CEMC->Draw("SAME");
-	h_E_10GeV_CEMC->Draw("SAME");
-	h_E_20GeV_CEMC->Draw("SAME");
-	t2->FromPad(c2);
-	t2->WriteImage("E_CEMC.png");
-	delete c2;
-	delete t2;
-	/* Pions EEMC */
-	h_P_1GeV_EEMC->SetTitle
-	    ("#pi^{-} EEMC - 1GeV(B):2GeV(G):5GeV(Y):10GeV(O):20GeV(R)");
-	h_P_1GeV_EEMC->SetLineColor(kBlue);
-	h_P_2GeV_EEMC->SetLineColor(kGreen);
-	h_P_5GeV_EEMC->SetLineColor(kYellow);
-	h_P_10GeV_EEMC->SetLineColor(kOrange);
-	h_P_20GeV_EEMC->SetLineColor(kRed);
-	TCanvas *c3 = new TCanvas("c3", "Pions in EEMC", 600, 400);
-	TImage *t3 = TImage::Create();
-	c3->SetLogy();
-	h_P_1GeV_EEMC->Draw();
-	h_P_2GeV_EEMC->Draw("SAME");
-	h_P_5GeV_EEMC->Draw("SAME");
-	h_P_10GeV_EEMC->Draw("SAME");
-	h_P_20GeV_EEMC->Draw("SAME");
-	t3->FromPad(c3);
-	t3->WriteImage("P_EEMC.png");
-	delete c3;
-	delete t3;
-	/* Electrons EEMC */
-	h_E_1GeV_EEMC->SetTitle
-	    ("e^{-} EEMC - 1GeV(B):2GeV(G):5GeV(Y):10GeV(O):20GeV(R)");
-	h_E_1GeV_EEMC->SetLineColor(kBlue);
-	h_E_2GeV_EEMC->SetLineColor(kGreen);
-	h_E_5GeV_EEMC->SetLineColor(kYellow);
-	h_E_10GeV_EEMC->SetLineColor(kOrange);
-	h_E_20GeV_EEMC->SetLineColor(kRed);
-	TCanvas *c4 = new TCanvas("c4", "Electrons in EEMC", 600, 400);
-	TImage *t4 = TImage::Create();
-	c4->SetLogy();
-	h_E_1GeV_EEMC->Draw();
-	h_E_2GeV_EEMC->Draw("SAME");
-	h_E_5GeV_EEMC->Draw("SAME");
-	h_E_10GeV_EEMC->Draw("SAME");
-	h_E_20GeV_EEMC->Draw("SAME");
-	t4->FromPad(c4);
-	t4->WriteImage("E_EEMC.png");
-	delete c4;
-	delete t4;
+	return strdup(label.str().c_str());
 }
