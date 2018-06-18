@@ -6,7 +6,7 @@
     make
     cd ../
     mkdir eic-utils-bin
-    cp eic-utils/*.sh merge-trees eic-utils-bin/
+    cp eic-utils/*.sh eic-utils/merge-trees eic-utils-bin/
     # Note, the following works only for the C-shell, which is the most common shell on sPHENIX computing account
     # To find out what shell you have, do 'echo $SHELL' (without the quotes)
     # It is also likely that you are using bash
