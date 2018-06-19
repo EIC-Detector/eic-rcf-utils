@@ -268,10 +268,7 @@ char *generate_file_path(const particle_type p,
 			 const int particle_energy_gev, const detector d)
 {
 	std::stringstream path;
-	if (d == femc)
-		path << "/sphenix/user/giorgian/data";
-	else
-		path << data_directory;
+	path << data_directory;
 
 	switch (p) {
 	case electron:
