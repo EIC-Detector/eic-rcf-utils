@@ -58,7 +58,7 @@ void Plot_Energy_EMC()
 	 * Base Histogram (Recreated from Matching Plots)
 	 */
 
-	TH1F *h_base = new TH1F("h_base", "", 25, 0.0, 2.0);
+	TH1F *h_base = new TH1F("h_base", "", 25, 0.0, 2.5);
 	TH1F *h_base_e = (TH1F *) h_base->Clone();
 	TH1F *h_base_p = (TH1F *) h_base->Clone();
 	h_base_e->SetLineColor(kRed);
