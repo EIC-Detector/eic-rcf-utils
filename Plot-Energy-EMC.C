@@ -21,16 +21,18 @@ const static int energy_levels[] = { 1, 2, 5, 10, 20 };
 /* The particle types we have */
 enum particle_type { electron, pion };
 /* The detectors we have */
-enum detector { cemc, eemc };
+enum detector { cemc, eemc, femc };
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
 void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 		    const bool normalize);
 void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 		      TH1F * const h_pion_EEMC, TH1F * const h_electron_EEMC,
+		      TH1F * const h_pion_FEMC, TH1F * const h_electron_FEMC,
 		      const char *const title, const char *const save_file_name,
 		      const char *const cemc_label,
-		      const char *const eemc_label);
+		      const char *const eemc_label,
+		      const char *const femc_label);
 char *generate_name(const particle_type p, const int particle_energy_gev,
 		    const detector d);
 char *generate_file_path(const particle_type p,
@@ -52,7 +54,7 @@ void Plot_Energy_EMC()
 
 	gROOT->SetBatch(kTRUE);
 
-	/**
+	/*
 	 * Base Histogram (Recreated from Matching Plots)
 	 */
 
@@ -103,12 +105,33 @@ void Plot_Energy_EMC()
 		fill_histogram(h_pion_eemc, t_pion_eemc, 0.3, true);
 		fill_histogram(h_electron_eemc, t_electron_eemc, 0.3, true);
 
-		histogram_to_png(h_pion_cemc, h_electron_cemc, h_pion_eemc,
-				 h_electron_eemc,
+		/* FEMC */
+		TH1F *const h_pion_femc = h_base_p->Clone();
+		TH1F *const h_electron_femc = h_base_e->Clone();
+		h_pion_femc->SetName(generate_name
+				     (pion, energy_levels[i], femc));
+		h_electron_femc->SetName(generate_name
+					 (electron, energy_levels[i], femc));
+
+		TTree *const t_pion_femc =
+		    load_tree(generate_file_path(pion, energy_levels[i], femc),
+			      "ntp_cluster");
+		TTree *const t_electron_femc =
+		    load_tree(generate_file_path
+			      (electron, energy_levels[i], femc),
+			      "ntp_cluster");
+
+		fill_histogram(h_pion_femc, t_pion_femc, 0.3, true);
+		fill_histogram(h_electron_femc, t_electron_femc, 0.3, true);
+
+		histogram_to_png(h_pion_cemc, h_electron_cemc,
+				 h_pion_eemc, h_electron_eemc,
+				 h_pion_femc, h_electron_femc,
 				 generate_title(energy_levels[i]),
 				 generate_save_name(energy_levels[i]),
 				 generate_label(energy_levels[i], cemc),
-				 generate_label(energy_levels[i], eemc));
+				 generate_label(energy_levels[i], eemc),
+				 generate_label(energy_levels[i], femc));
 	}
 
 }
@@ -153,14 +176,16 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 
 void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 		      TH1F * const h_pion_EEMC, TH1F * const h_electron_EEMC,
+		      TH1F * const h_pion_FEMC, TH1F * const h_electron_FEMC,
 		      const char *const title, const char *const save_file_name,
 		      const char *const cemc_label,
-		      const char *const eemc_label)
+		      const char *const eemc_label,
+		      const char *const femc_label)
 {
 	TCanvas cPNG("cPNG", title, 1200, 400);
 	TImage *img = TImage::Create();
 
-	cPNG.Divide(2, 1);
+	cPNG.Divide(3, 1);
 	cPNG.cd(1);
 	h_pion_CEMC->GetYaxis()->SetRangeUser(0.0001, 1);
 	h_electron_CEMC->GetYaxis()->SetRangeUser(0.0001, 1);
@@ -186,6 +211,19 @@ void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 	eemc_legend->AddEntry(h_pion_EEMC, "Pions", "l");
 	eemc_legend->AddEntry(h_electron_EEMC, "Electrons", "l");
 	eemc_legend->Draw();
+
+	cPNG.cd(3);
+	h_pion_FEMC->GetYaxis()->SetRangeUser(0.0001, 1);
+	h_electron_FEMC->GetYaxis()->SetRangeUser(0.0001, 1);
+	gPad->SetLogy();
+	h_pion_FEMC->Draw();
+	h_electron_FEMC->Draw("SAME");
+	gPad->RedrawAxis();
+
+	auto femc_legend = new TLegend(0.65, 0.9, 0.9, 0.65, femc_label);
+	femc_legend->AddEntry(h_pion_FEMC, "Pions", "l");
+	femc_legend->AddEntry(h_electron_FEMC, "Electrons", "l");
+	femc_legend->Draw();
 
 	img->FromPad(&cPNG);
 	img->WriteImage(save_file_name);
@@ -230,7 +268,11 @@ char *generate_file_path(const particle_type p,
 			 const int particle_energy_gev, const detector d)
 {
 	std::stringstream path;
-	path << data_directory;
+	if (d == femc)
+		path << "/sphenix/user/giorgian/data";
+	else
+		path << data_directory;
+
 	switch (p) {
 	case electron:
 		path << "/Electrons/Electrons";
@@ -248,6 +290,9 @@ char *generate_file_path(const particle_type p,
 	case eemc:
 		path << "E";
 		break;
+	case femc:
+		path << "F";
+		break;
 	}
 
 	path << ".root";
@@ -258,7 +303,8 @@ char *generate_file_path(const particle_type p,
 char *generate_save_name(const int particle_energy_gev)
 {
 	std::stringstream name;
-	name << "Electron-Pion-" << particle_energy_gev << "GeV-CEMC-EEMC.png";
+	name << "Electron-Pion-" << particle_energy_gev <<
+	    "GeV-CEMC-EEMC-FEMC.png";
 
 	return strdup(name.str().c_str());
 }
@@ -281,6 +327,9 @@ char *generate_label(const int particle_energy_gev, const detector d)
 		break;
 	case eemc:
 		label << "EEMC ";
+		break;
+	case femc:
+		label << "FEMC ";
 		break;
 	}
 	label << particle_energy_gev << "GeV";
