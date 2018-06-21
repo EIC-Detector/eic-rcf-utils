@@ -170,7 +170,7 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 void display_histogram(TH1F * const h_pion, TH1F * const h_electron,
 		       const char *const title, const char *const label)
 {
-	TCanvas *cPNG = new TCanvas(label, title, 1200, 400);
+	TCanvas *cPNG = new TCanvas(label, title, 600, 400);
 
 	h_pion->GetYaxis()->SetRangeUser(0.0001, 1);
 	h_electron->GetYaxis()->SetRangeUser(0.0001, 1);
