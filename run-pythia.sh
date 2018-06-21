@@ -19,7 +19,7 @@
 
 # Directory where g4simulation Fun4AllSimulations are
 MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
-EMAIL='giorgian.borca-tasciuc@stonybrook.edu' # email that condor emails user when jobs are done
+EMAIL='my_email@my_domain.my_ext' # email that condor emails user when jobs are done
 
 # Name of directory where simulation results are placed
 DNAME=$(mktemp -d -t pythia-simulation.XXX -p .)
