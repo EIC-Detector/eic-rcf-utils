@@ -200,24 +200,23 @@ void histogram_to_png(TH1F * const h_pion, TH1F * const h_electron,
 	cPNG.cd(1);
 //      h_pion->GetYaxis()->SetRangeUser(0.0001, 1);
 	gPad->SetLogy();
+	gPad->SetLeftMargin(0.3);
 	h_pion->Scale(1 / h_pion->GetEntries());
 	h_pion->Draw();
 	gPad->RedrawAxis();
 
-	auto pion_legend = new TLegend(0.70, 0.9, 0.95, 0.65, pion_label);
-	pion_legend->AddEntry(h_pion, "Pions", "l");
+	auto pion_legend = new TLegend(0.80, 1, 1, 0.9, pion_label);
 	pion_legend->Draw();
 
 	cPNG.cd(2);
 //      h_electron->GetYaxis()->SetRangeUser(0.0001, 1);
 	gPad->SetLogy();
+	gPad->SetLeftMargin(0.3);
 	h_electron->Scale(1 / h_electron->GetEntries());
 	h_electron->Draw();
 	gPad->RedrawAxis();
 
-	auto electron_legend =
-	    new TLegend(0.70, 0.9, 0.95, 0.65, electron_label);
-	electron_legend->AddEntry(h_electron, "Electrons", "l");
+	auto electron_legend = new TLegend(0.80, 1, 1, 0.9, electron_label);
 	electron_legend->Draw();
 
 	img->FromPad(&cPNG);
