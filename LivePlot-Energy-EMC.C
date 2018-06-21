@@ -26,19 +26,12 @@ enum detector { cemc, eemc, femc };
 TTree *load_tree(const char *const file_name, const char *const tree_name);
 void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 		    const bool normalize);
-void display_histograms(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
-		      TH1F * const h_pion_EEMC, TH1F * const h_electron_EEMC,
-		      TH1F * const h_pion_FEMC, TH1F * const h_electron_FEMC,
-		      const char *const title, const char *const canvas_name,
-		      const char *const cemc_label,
-		      const char *const eemc_label,
-		      const char *const femc_label);
+void display_histogram(TH1F * const h_pion, TH1F * const h_electron, const char *const title, const char *const label);
 char *generate_name(const particle_type p, const int particle_energy_gev,
 		    const detector d);
 char *generate_file_path(const particle_type p,
 			 const int particle_energy_gev, const detector d);
-char *generate_canvas_name(const int particle_energy_gev);
-char *generate_title(const int particle_energy_gev);
+char *generate_title(const int particle_energy_gev, const detector d);
 char *generate_label(const int particle_energy_gev, const detector d);
 
 void LivePlot_Energy_EMC()
@@ -83,6 +76,7 @@ void LivePlot_Energy_EMC()
 
 		fill_histogram(h_pion_cemc, t_pion_cemc, 0.3, true);
 		fill_histogram(h_electron_cemc, t_electron_cemc, 0.3, true);
+		display_histogram(h_pion_cemc, h_electron_cemc, generate_title(energy_levels[i], cemc), generate_label(energy_levels[i], cemc));
 
 		/* EEMC */
 		TH1F *const h_pion_eemc = h_base_p->Clone();
@@ -102,6 +96,7 @@ void LivePlot_Energy_EMC()
 
 		fill_histogram(h_pion_eemc, t_pion_eemc, 0.3, true);
 		fill_histogram(h_electron_eemc, t_electron_eemc, 0.3, true);
+		display_histogram(h_pion_eemc, h_electron_eemc, generate_title(energy_levels[i], eemc), generate_label(energy_levels[i], eemc));
 
 		/* FEMC */
 		TH1F *const h_pion_femc = h_base_p->Clone();
@@ -121,15 +116,8 @@ void LivePlot_Energy_EMC()
 
 		fill_histogram(h_pion_femc, t_pion_femc, 0.3, true);
 		fill_histogram(h_electron_femc, t_electron_femc, 0.3, true);
+		display_histogram(h_pion_femc, h_electron_femc, generate_title(energy_levels[i], femc), generate_label(energy_levels[i], femc));
 
-		display_histograms(h_pion_cemc, h_electron_cemc,
-				 h_pion_eemc, h_electron_eemc,
-				 h_pion_femc, h_electron_femc,
-				 generate_title(energy_levels[i]),
-				 generate_canvas_name(energy_levels[i]),
-				 generate_label(energy_levels[i], cemc),
-				 generate_label(energy_levels[i], eemc),
-				 generate_label(energy_levels[i], femc));
 	}
 
 }
@@ -172,55 +160,21 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 
-void display_histograms(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
-		      TH1F * const h_pion_EEMC, TH1F * const h_electron_EEMC,
-		      TH1F * const h_pion_FEMC, TH1F * const h_electron_FEMC,
-		      const char *const title, const char *const canvas_name,
-		      const char *const cemc_label,
-		      const char *const eemc_label,
-		      const char *const femc_label)
+void display_histogram(TH1F * const h_pion, TH1F * const h_electron, const char *const title, const char *const label)
 {
-	TCanvas *cPNG = new TCanvas(canvas_name, title, 1200, 400);
+	TCanvas *cPNG = new TCanvas(label, title, 1200, 400);
 
-	cPNG->Divide(3, 1);
-	cPNG->cd(1);
-	h_pion_CEMC->GetYaxis()->SetRangeUser(0.0001, 1);
-	h_electron_CEMC->GetYaxis()->SetRangeUser(0.0001, 1);
+	h_pion->GetYaxis()->SetRangeUser(0.0001, 1);
+	h_electron->GetYaxis()->SetRangeUser(0.0001, 1);
 	gPad->SetLogy();
-	h_pion_CEMC->Draw();
-	h_electron_CEMC->Draw("SAME");
+	h_pion->Draw();
+	h_electron->Draw("SAME");
 	gPad->RedrawAxis();
 
-	auto cemc_legend = new TLegend(0.70, 0.9, 0.95, 0.65, cemc_label);
-	cemc_legend->AddEntry(h_pion_CEMC, "Pions", "l");
-	cemc_legend->AddEntry(h_electron_CEMC, "Electrons", "l");
-	cemc_legend->Draw();
-
-	cPNG->cd(2);
-	h_pion_EEMC->GetYaxis()->SetRangeUser(0.0001, 1);
-	h_electron_EEMC->GetYaxis()->SetRangeUser(0.0001, 1);
-	gPad->SetLogy();
-	h_pion_EEMC->Draw();
-	h_electron_EEMC->Draw("SAME");
-	gPad->RedrawAxis();
-
-	auto eemc_legend = new TLegend(0.65, 0.9, 0.9, 0.65, eemc_label);
-	eemc_legend->AddEntry(h_pion_EEMC, "Pions", "l");
-	eemc_legend->AddEntry(h_electron_EEMC, "Electrons", "l");
-	eemc_legend->Draw();
-
-	cPNG->cd(3);
-	h_pion_FEMC->GetYaxis()->SetRangeUser(0.0001, 1);
-	h_electron_FEMC->GetYaxis()->SetRangeUser(0.0001, 1);
-	gPad->SetLogy();
-	h_pion_FEMC->Draw();
-	h_electron_FEMC->Draw("SAME");
-	gPad->RedrawAxis();
-
-	auto femc_legend = new TLegend(0.65, 0.9, 0.9, 0.65, femc_label);
-	femc_legend->AddEntry(h_pion_FEMC, "Pions", "l");
-	femc_legend->AddEntry(h_electron_FEMC, "Electrons", "l");
-	femc_legend->Draw();
+	auto legend = new TLegend(0.70, 0.9, 0.95, 0.65, label);
+	legend->AddEntry(h_pion, "Pions", "l");
+	legend->AddEntry(h_electron, "Electrons", "l");
+	legend->Draw();
 }
 
 char *strdup(const char *s)
@@ -289,21 +243,9 @@ char *generate_file_path(const particle_type p,
 	return strdup(path.str().c_str());
 }
 
-char *generate_canvas_name(const int particle_energy_gev)
+char *generate_title(const int particle_energy_gev, const detector d)
 {
-	std::stringstream name;
-	name << "Electron-Pion-" << particle_energy_gev <<
-	    "GeV-CEMC-EEMC-FEMC.png";
-
-	return strdup(name.str().c_str());
-}
-
-char *generate_title(const int particle_energy_gev)
-{
-	std::stringstream title;
-	title << particle_energy_gev << "GeV";
-
-	return strdup(title.str().c_str());
+	return generate_label(particle_energy_gev, d);
 }
 
 char *generate_label(const int particle_energy_gev, const detector d)
