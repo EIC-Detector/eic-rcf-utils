@@ -26,11 +26,12 @@ enum detector { cemc, eemc, femc };
 TTree *load_tree(const char *const file_name, const char *const tree_name);
 void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 		    const bool normalize);
-void display_histogram(TH1F * const h_pion, TH1F * const h_electron, const char *const title, const char *const label);
+void display_histogram(TH1F * const h_pion, TH1F * const h_electron,
+		       const char *const title, const char *const label);
 char *generate_name(const particle_type p, const int particle_energy_gev,
 		    const detector d);
-char *generate_file_path(const particle_type p,
-			 const int particle_energy_gev, const detector d);
+char *generate_file_path(const particle_type p, const int particle_energy_gev,
+			 const detector d);
 char *generate_title(const int particle_energy_gev, const detector d);
 char *generate_label(const int particle_energy_gev, const detector d);
 
@@ -76,7 +77,9 @@ void LivePlot_Energy_EMC()
 
 		fill_histogram(h_pion_cemc, t_pion_cemc, 0.3, true);
 		fill_histogram(h_electron_cemc, t_electron_cemc, 0.3, true);
-		display_histogram(h_pion_cemc, h_electron_cemc, generate_title(energy_levels[i], cemc), generate_label(energy_levels[i], cemc));
+		display_histogram(h_pion_cemc, h_electron_cemc,
+				  generate_title(energy_levels[i], cemc),
+				  generate_label(energy_levels[i], cemc));
 
 		/* EEMC */
 		TH1F *const h_pion_eemc = h_base_p->Clone();
@@ -96,7 +99,9 @@ void LivePlot_Energy_EMC()
 
 		fill_histogram(h_pion_eemc, t_pion_eemc, 0.3, true);
 		fill_histogram(h_electron_eemc, t_electron_eemc, 0.3, true);
-		display_histogram(h_pion_eemc, h_electron_eemc, generate_title(energy_levels[i], eemc), generate_label(energy_levels[i], eemc));
+		display_histogram(h_pion_eemc, h_electron_eemc,
+				  generate_title(energy_levels[i], eemc),
+				  generate_label(energy_levels[i], eemc));
 
 		/* FEMC */
 		TH1F *const h_pion_femc = h_base_p->Clone();
@@ -116,7 +121,9 @@ void LivePlot_Energy_EMC()
 
 		fill_histogram(h_pion_femc, t_pion_femc, 0.3, true);
 		fill_histogram(h_electron_femc, t_electron_femc, 0.3, true);
-		display_histogram(h_pion_femc, h_electron_femc, generate_title(energy_levels[i], femc), generate_label(energy_levels[i], femc));
+		display_histogram(h_pion_femc, h_electron_femc,
+				  generate_title(energy_levels[i], femc),
+				  generate_label(energy_levels[i], femc));
 
 	}
 
@@ -160,7 +167,8 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 
-void display_histogram(TH1F * const h_pion, TH1F * const h_electron, const char *const title, const char *const label)
+void display_histogram(TH1F * const h_pion, TH1F * const h_electron,
+		       const char *const title, const char *const label)
 {
 	TCanvas *cPNG = new TCanvas(label, title, 1200, 400);
 
