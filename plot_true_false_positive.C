@@ -30,13 +30,15 @@ int plot_true_false_positive()
 
   add_CEMC_Cut(0.8,0.0);
   add_CEMC_Cut(0.8,0.01);
-  add_CEMC_Cut(0.8,0.015);
-  add_CEMC_Cut(0.8,0.02);
+  //add_CEMC_Cut(0.8,0.015);
+  //add_CEMC_Cut(0.8,0.02);
   
   add_EEMC_Cut(0.5);
-  add_EEMC_Cut(0.75);
+  //add_EEMC_Cut(0.75);
   add_EEMC_Cut(0.9);
   
+  add_FEMC_Cut(0.9);
+
   /* ---------------------------------------- */
 
   // Momentums //
@@ -104,7 +106,8 @@ int plot_true_false_positive()
       graphs_CEMC[idx_tp]->SetMarkerSize(1); // Possibly too large? //
       graphs_CEMC[idx_fp]->SetMarkerSize(1);
 
-     
+      graphs_CEMC[idx_tp]->SetTitle("");
+      graphs_CEMC[idx_fp]->SetTitle("");
       
       legend_CEMC->AddEntry(graphs_CEMC[idx_tp],v_cuts_CEMC_short.at(idx_cut),"P");
     }
@@ -212,7 +215,8 @@ int plot_true_false_positive()
 	{
 	  TString cut = v_cuts_FEMC.at(idx_cut*2)+ getCut(v_momenta.at(idx_p)) + v_cuts_FEMC.at(idx_cut*2+1); 
 	  v_rate_tp=get_true_positive("F",cut,v_momenta.at(idx_p));
-	  v_rate_fp=get_false_positive("F",cut,v_momenta.at(idx_p));	  
+	  v_rate_fp=get_false_positive("F",cut,v_momenta.at(idx_p));
+	  cout << v_rate_tp << endl;
 	  graphs_FEMC[idx_tp]->SetPoint(idx_p,v_momenta[idx_p],v_rate_tp);
 	  graphs_FEMC[idx_fp]->SetPoint(idx_p,v_momenta[idx_p],v_rate_fp);	  
 	}
@@ -301,7 +305,7 @@ void add_EEMC_Cut(double ep)
   v_cuts_EEMC_short.push_back(((TString(base_ep_short)) += str_1)+" True Positive");
 }
 
-void add_FEMC_cut(double ep)
+void add_FEMC_Cut(double ep)
 {
   TString base_ep="em_cluster_e/";
   TString base_ep_short = "E/P > ";
