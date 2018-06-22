@@ -27,7 +27,13 @@ double get_purity(TString, TString, int);
 
 int efficiency_purity_analysisMacro()
 {
-  
+   //Main Print Statement//
+  std::cout<<"******************************************************************"<<std::endl;
+  std::cout<<"T.P = True Positive, Percentage of correctly identified electrons"<<std::endl;
+  std::cout<<"F.P = False Positive, Percentage of total pions identified as electrons"<<std::endl;
+  std::cout<<"Purity, Percentage of total particles identified as electrons which are actually electrons"<<std::endl;
+  std::cout<<"******************************************************************"<<std::endl;
+
   //************EDIT CUTS HERE**************//
   //*
   float ep[]={0.8,0.9};
@@ -39,13 +45,6 @@ int efficiency_purity_analysisMacro()
   int size_ep=sizeof(ep)/sizeof(ep[0]);
   int size_prob=sizeof(prob)/sizeof(prob[0]);
   
-  //Main Print Statement//
-  std::cout<<"******************************************************************"<<std::endl;
-  std::cout<<"T.P = True Positive, Percentage of correctly identified electrons"<<std::endl;
-  std::cout<<"F.P = False Positive, Percentage of total pions identified as electrons"<<std::endl;
-  std::cout<<"Purity, Percentage of total particles identified as electrons which are actually electrons"<<std::endl;
-  std::cout<<"******************************************************************"<<std::endl;
-
   //**************SELECT OUTPUT HERE*************************//
   //*
   //* getInfo(True GeV,"C" or "E" depending on detector,array,array)//
