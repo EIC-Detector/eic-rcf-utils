@@ -90,7 +90,7 @@ for pythia_file do
 
 	echo -e $JOB | sed "s/^[ \t]*//" > $CONDOR_JOB_NAME
 
-	ROOT_FILE="$(pwd)/G4EICDetector.root"
+	ROOT_FILE="$(pwd)/G4EICDetector-$i.root"
 	CONDOR_EXECUTABLE="time root -b -q Fun4All_G4_EICDetector.C\($NEVENTS,\\\"$pythia_file\\\",\\\"$ROOT_FILE\\\"\)"
 
 	cat > $CONDOR_EXECUTABLE_NAME << EOF
