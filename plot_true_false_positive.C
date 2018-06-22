@@ -28,16 +28,13 @@ int plot_true_false_positive()
   /*   Cut 1 : E/True E > float_1             */
   /* ---------------------------------------- */
 
-  add_CEMC_Cut(0.8,0.0);
-  add_CEMC_Cut(0.8,0.01);
-  //add_CEMC_Cut(0.8,0.015);
-  //add_CEMC_Cut(0.8,0.02);
+  add_CEMC_Cut(0.807,0.02);
+  add_CEMC_Cut(0.703,0.02);
   
-  add_EEMC_Cut(0.5);
-  //add_EEMC_Cut(0.75);
-  add_EEMC_Cut(0.9);
+  //add_EEMC_Cut(0.5);
+
   
-  add_FEMC_Cut(0.9);
+  //add_FEMC_Cut(0.9);
 
   /* ---------------------------------------- */
 
@@ -49,6 +46,21 @@ int plot_true_false_positive()
   v_momenta.push_back(10.0);
   v_momenta.push_back(20.0);
   
+  // Marker Styles //
+  vector< int > v_styles;
+  v_styles.push_back(20);
+  v_styles.push_back(24);
+  v_styles.push_back(21);
+  v_styles.push_back(25);
+  v_styles.push_back(22);
+  v_styles.push_back(26);
+  v_styles.push_back(23);
+  v_styles.push_back(27);
+  v_styles.push_back(34);
+  v_styles.push_back(28);
+  v_styles.push_back(29);
+  v_styles.push_back(30);
+ 
   /* Loading Macros */
 
   gROOT->LoadMacro("efficiency_purity_analysisMacro.C");
@@ -65,10 +77,13 @@ int plot_true_false_positive()
 
   //CEMC Graph Initialization//
   const int size=2*v_cuts_CEMC.size(); //T.P & F.P graph per cut 
-  TCanvas *c_CEMC = new TCanvas("cc","cc",600,400);
+  TCanvas *c_CEMC = new TCanvas("cc","cc",1000,600);
   TGraph *graphs_CEMC[size]; //Array of TGraph pointers
-  auto legend_CEMC = new TLegend(0.5,0.4,0.9,0.6); //Legend
+  auto legend_CEMC_t = new TLegend(0.51,0.2,1.0,0.9); //Legend
+  auto legend_CEMC_f = new TLegend(0.51,0.2,1.0,0.9); //Legend
 
+  legend_CEMC_t->SetTextSize(0.06);
+  legend_CEMC_f->SetTextSize(0.06);
   // Create the CEMC TGraphs ( 2 per cut )//
   for(unsigned idx_cut=0;idx_cut < v_cuts_CEMC.size(); idx_cut++)
     /* loop over cuts */
@@ -100,8 +115,8 @@ int plot_true_false_positive()
       graphs_CEMC[idx_tp]->SetLineColor(graphs_CEMC[idx_tp]->GetMarkerColor());
       graphs_CEMC[idx_fp]->SetLineColor(graphs_CEMC[idx_fp]->GetMarkerColor());
 
-      graphs_CEMC[idx_tp]->SetMarkerStyle(20+idx_cut);
-      graphs_CEMC[idx_fp]->SetMarkerStyle(20+idx_cut);
+      graphs_CEMC[idx_tp]->SetMarkerStyle(v_styles.at(idx_cut));
+      graphs_CEMC[idx_fp]->SetMarkerStyle(v_styles.at(idx_cut));
       
       graphs_CEMC[idx_tp]->SetMarkerSize(1); // Possibly too large? //
       graphs_CEMC[idx_fp]->SetMarkerSize(1);
@@ -109,21 +124,52 @@ int plot_true_false_positive()
       graphs_CEMC[idx_tp]->SetTitle("");
       graphs_CEMC[idx_fp]->SetTitle("");
       
-      legend_CEMC->AddEntry(graphs_CEMC[idx_tp],v_cuts_CEMC_short.at(idx_cut),"P");
+      
+
+      legend_CEMC_t->AddEntry(graphs_CEMC[idx_tp],v_cuts_CEMC_short.at(idx_cut)+" True Positive","P");
+      legend_CEMC_f->AddEntry(graphs_CEMC[idx_fp],v_cuts_CEMC_short.at(idx_cut)+ " False Positive","P");
     }
   
   // Draw all graphs on same canvas (CEMC) //
+  c_CEMC->Divide(1,2);
   for(int i = 0; i<size; i++)
     {
       if(i==0) 
 	{
-	graphs_CEMC[0]->Draw("PA");
-	graphs_CEMC[0]->GetYaxis()->SetRangeUser(0,1.1);
-        graphs_CEMC[0]->GetYaxis()->SetTitle("Rate");
-      }
-      else     graphs_CEMC[i]->Draw("PSame");
+	  c_CEMC->cd(1);
+	  //gPad->SetBottomMargin(0.2);
+	  gPad->SetRightMargin(0.5);
+	  graphs_CEMC[0]->Draw("PA");
+	  graphs_CEMC[0]->GetXaxis()->SetTitle("True Momentum (GeV)");
+	  graphs_CEMC[0]->GetYaxis()->SetRangeUser(0.7,1.0);
+	  graphs_CEMC[0]->GetYaxis()->SetTitle("Rate");
+	}
+      else if(i==1)
+	{
+	  c_CEMC->cd(2);
+	  //gPad->SetTopMargin(0.2);
+	  gPad->SetRightMargin(0.5);
+	  graphs_CEMC[1]->GetXaxis()->SetTitle("True Momentum (GeV)");
+	  graphs_CEMC[1]->GetYaxis()->SetRangeUser(-0.01,0.11);
+	  graphs_CEMC[1]->GetYaxis()->SetTitle("Rate");
+	  graphs_CEMC[1]->Draw("PA");
+	}
+      else if (i%2==0)
+	{
+	  c_CEMC->cd(1);
+	  graphs_CEMC[i]->Draw("PSame");
+	}
+      else
+	{
+	  c_CEMC->cd(2);
+	  graphs_CEMC[i]->Draw("P");
+	}
+      
     }
-  legend_CEMC->Draw();
+  c_CEMC->cd(1);
+  legend_CEMC_t->Draw();
+  c_CEMC->cd(2);
+  legend_CEMC_f->Draw();
 
   //------------------------------------------------------------//
   //--------                EEMC Plots                  --------//
@@ -216,7 +262,6 @@ int plot_true_false_positive()
 	  TString cut = v_cuts_FEMC.at(idx_cut*2)+ getCut(v_momenta.at(idx_p)) + v_cuts_FEMC.at(idx_cut*2+1); 
 	  v_rate_tp=get_true_positive("F",cut,v_momenta.at(idx_p));
 	  v_rate_fp=get_false_positive("F",cut,v_momenta.at(idx_p));
-	  cout << v_rate_tp << endl;
 	  graphs_FEMC[idx_tp]->SetPoint(idx_p,v_momenta[idx_p],v_rate_tp);
 	  graphs_FEMC[idx_fp]->SetPoint(idx_p,v_momenta[idx_p],v_rate_fp);	  
 	}
@@ -288,7 +333,7 @@ void add_CEMC_Cut(double ep, double prob)
   else
     {
       v_cuts_CEMC.push_back((TString(base_ep) += ep) + "&&" + (TString(base_prob) += prob));
-      v_cuts_CEMC_short.push_back((TString(base_ep_short) += str_1) + "&&" +(TString(base_prob_short) += str_2)+" True Positive");
+      v_cuts_CEMC_short.push_back((TString(base_ep_short) += str_1) + "&&" +(TString(base_prob_short) += str_2));
     }
 }
 
@@ -313,7 +358,6 @@ void add_FEMC_Cut(double ep)
   sprintf(str_1,"%.2f", ep);
 
   v_cuts_FEMC.push_back(base_ep); // 1st element : 'em_cluster_e/'
-  cout<<v_cuts_FEMC.at(0)<<endl;
   v_cuts_FEMC.push_back(TString(">")+= str_1); //: 'em_cluster_e/*GeV*>cut'
 
   v_cuts_FEMC_short.push_back(((TString(base_ep_short)) += str_1)+" True Positive");
