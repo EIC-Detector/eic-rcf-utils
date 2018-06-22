@@ -62,13 +62,15 @@ cat > cleanup.sh << EOF
 rm *.log *.err *.out *.C vis.mac *.sh *.job
 EOF
 chmod u+x cleanup.sh
+
+i=1
 for pythia_file do
-	BASE_NAME="$pythia_file" # Job/shell script files are prefixed with this base
-	CONDOR_EXECUTABLE_NAME=$BASE_NAME.sh
-	CONDOR_OUT_NAME=$BASE_NAME.out # output of job
-	CONDOR_ERROR_NAME=$BASE_NAME.err # name of file to place stderr of job
-	CONDOR_LOG_NAME=$BASE_NAME.log # name of file to place condor log
-	CONDOR_JOB_NAME=$BASE_NAME.job # name of job file for condor to run
+	BASE_NAME="simulation" # Job/shell script files are prefixed with this base
+	CONDOR_EXECUTABLE_NAME=$BASE_NAME-$i.sh
+	CONDOR_OUT_NAME=$BASE_NAME-$i.out # output of job
+	CONDOR_ERROR_NAME=$BASE_NAME-$i.err # name of file to place stderr of job
+	CONDOR_LOG_NAME=$BASE_NAME-$i.log # name of file to place condor log
+	CONDOR_JOB_NAME=$BASE_NAME-$i.job # name of job file for condor to run
 
 	JOB=$"
 	Executable      = $(pwd)/$CONDOR_EXECUTABLE_NAME	\n
@@ -93,6 +95,7 @@ for pythia_file do
 
 	cat > $CONDOR_EXECUTABLE_NAME << EOF
 #!/bin/tcsh
+# For "$pythia_file"
 setenv HOME $HOME
 source /etc/csh.login
 foreach i (/etc/profile.d/*.csh)
@@ -106,4 +109,5 @@ $CONDOR_EXECUTABLE
 EOF
 	chmod a+x $CONDOR_EXECUTABLE_NAME 
 	condor_submit "$CONDOR_JOB_NAME"
+	i=$((i + 1))
 done
