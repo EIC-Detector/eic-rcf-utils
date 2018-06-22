@@ -9,10 +9,9 @@
 # Also if you have $HOME/.login file that you need for setting up your enviroment before your macro runs,
 # uncomment "source $HOME/.login", which can be found near the end of this script
 
-# Usage: run-pythia.sh [OPTIONS]...
+# Usage: run-pythia.sh [OPTION]... [FILE]...
 # -m,--macros-directory         specifies directory where g4simulation Fun4AllMacroes are
-# -n,--number-events            specifies number of events to run
-# -p,--pythia-file              specifies where to find the pythia file
+# -n,--number-events            specifies number of events to run per pythia file
 # -e,--email                    specifies the email that condor emails once jobs are done
 # -r,--results-directory        specifies which directory to store the results in
 # -h,--help                     displays this message
@@ -20,8 +19,7 @@
 
 # Directory where g4simulation Fun4AllSimulations are
 MACROS_DIRECTORY=/direct/sphenix+u/$USER/macros/macros/g4simulations
-PYTHIA_FILE=/gpfs/mnt/gpfs04/sphenix/user/$USER/data/PythiaEvents.root
-EMAIL='giorgian.borca-tasciuc@stonybrook.edu' # email that condor emails user when jobs are done
+EMAIL='my_email@my_domain.my_ext' # email that condor emails user when jobs are done
 
 # Name of directory where simulation results are placed
 DNAME=$(mktemp -d -t pythia-simulation.XXX -p .)
@@ -36,14 +34,12 @@ while true ; do
     case "$1" in
         -m|--macros-directory) MACROS_DIRECTORY=$2; shift 2 ;;
         -n|--number-events) NEVENTS=$2; shift 2 ;;
-        -p|--pythia-file) PYTHIA_FILE=$2 ; shift 2 ;;
         -e|--email) EMAIL=$2; shift 2 ;;
         -r|--results-directory) rmdir $DNAME; DNAME=$2; mkdir $DNAME; shift 2 ;;
 	-h|--help) cat << EOF
-Usage: run-pythia.sh [OPTIONS]...
+Usage: run-pythia.sh [OPTION]... [FILE]...
 -m,--macros-directory			specifies directory where g4simulation Fun4AllMacroes are
 -n,--number-events			specifies number of events to run
--p,--pythia-file			specifies where to find the pythia file
 -e,--email				specifies the email that condor emails once jobs are done
 -r,--results-directory			specifies which directory to store the results in
 -h,--help				displays this message
@@ -67,36 +63,39 @@ rm *.log *.err *.out *.C vis.mac *.sh *.job
 EOF
 chmod u+x cleanup.sh
 
-BASE_NAME="simulation" # Job/shell script files are prefixed with this base
-CONDOR_EXECUTABLE_NAME=$BASE_NAME.sh
-CONDOR_OUT_NAME=$BASE_NAME.out # output of job
-CONDOR_ERROR_NAME=$BASE_NAME.err # name of file to place stderr of job
-CONDOR_LOG_NAME=$BASE_NAME.log # name of file to place condor log
-CONDOR_JOB_NAME=$BASE_NAME.job # name of job file for condor to run
+i=1
+for pythia_file do
+	BASE_NAME="simulation" # Job/shell script files are prefixed with this base
+	CONDOR_EXECUTABLE_NAME=$BASE_NAME-$i.sh
+	CONDOR_OUT_NAME=$BASE_NAME-$i.out # output of job
+	CONDOR_ERROR_NAME=$BASE_NAME-$i.err # name of file to place stderr of job
+	CONDOR_LOG_NAME=$BASE_NAME-$i.log # name of file to place condor log
+	CONDOR_JOB_NAME=$BASE_NAME-$i.job # name of job file for condor to run
 
-JOB=$"
-Executable      = $(pwd)/$CONDOR_EXECUTABLE_NAME	\n
-Output          = $(pwd)/$CONDOR_OUT_NAME		\n
-Error           = $(pwd)/$CONDOR_ERROR_NAME		\n
-Log             = $(pwd)/$CONDOR_LOG_NAME		\n
-Universe        = vanilla				\n
-Priority        = +0					\n
-Input           = /dev/null				\n
-GetEnv          = False					\n
-Initialdir      = $(pwd)				\n
-+Experiment     = \"sphenix\"				\n
-+Job_Type       = \"cas\"				\n
-Notification    = Always				\n
-Notify_user     = $EMAIL				\n
-Queue"
+	JOB=$"
+	Executable      = $(pwd)/$CONDOR_EXECUTABLE_NAME	\n
+	Output          = $(pwd)/$CONDOR_OUT_NAME		\n
+	Error           = $(pwd)/$CONDOR_ERROR_NAME		\n
+	Log             = $(pwd)/$CONDOR_LOG_NAME		\n
+	Universe        = vanilla				\n
+	Priority        = +0					\n
+	Input           = /dev/null				\n
+	GetEnv          = False					\n
+	Initialdir      = $(pwd)				\n
+	+Experiment     = \"sphenix\"				\n
+	+Job_Type       = \"cas\"				\n
+	Notification    = Always				\n
+	Notify_user     = $EMAIL				\n
+	Queue"
 
-echo -e $JOB | sed "s/^[ \t]*//" > $CONDOR_JOB_NAME
+	echo -e $JOB | sed "s/^[ \t]*//" > $CONDOR_JOB_NAME
 
-ROOT_FILE="$(pwd)/G4EICDetector.root"
-CONDOR_EXECUTABLE="time root -b -q Fun4All_G4_EICDetector.C\($NEVENTS,\\\"$PYTHIA_FILE\\\",\\\"$ROOT_FILE\\\"\)"
+	ROOT_FILE="$(pwd)/G4EICDetector-$i.root"
+	CONDOR_EXECUTABLE="time root -b -q Fun4All_G4_EICDetector.C\($NEVENTS,\\\"$pythia_file\\\",\\\"$ROOT_FILE\\\"\)"
 
-cat > $CONDOR_EXECUTABLE_NAME << EOF
+	cat > $CONDOR_EXECUTABLE_NAME << EOF
 #!/bin/tcsh
+# For "$pythia_file"
 setenv HOME $HOME
 source /etc/csh.login
 foreach i (/etc/profile.d/*.csh)
@@ -108,5 +107,7 @@ source /opt/sphenix/core/bin/sphenix_setup.csh
 cd $PWD;
 $CONDOR_EXECUTABLE
 EOF
-chmod a+x $CONDOR_EXECUTABLE_NAME 
-condor_submit "$CONDOR_JOB_NAME"
+	chmod a+x $CONDOR_EXECUTABLE_NAME 
+	condor_submit "$CONDOR_JOB_NAME"
+	i=$((i + 1))
+done
