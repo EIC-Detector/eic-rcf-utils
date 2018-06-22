@@ -123,7 +123,6 @@ double get_true_positive(TString detector, TString cut, int GeV)
   TTree *t_electron =(TTree*)f1->Get("event_cluster");
 
   double truePositive = t_electron->GetEntries(cut)/10000.0;
-  cout << truePositive << endl;
   //f1->Close(); delete t_electron; t_electron=NULL;
   delete t_electron; t_electron=NULL; f1->Close();
   return truePositive;
