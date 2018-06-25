@@ -9,6 +9,7 @@
 */
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 #include <getopt.h>
 
 #include "TFile.h"
@@ -30,7 +31,7 @@ int main(int argc, char *argv[])
 	};
 
 	const char *out = "Merged.root";
-	const char *tree = "ntp_cluster";
+	std::vector < const char *>trees;
 
 	for (;;) {
 		int option_index = 0;
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
 			out = optarg;
 			break;
 		case option_tree:
-			tree = optarg;
+			trees.push_back(optarg);
 			break;
 		case option_help:
 			const char *const help_message =
@@ -64,15 +65,24 @@ int main(int argc, char *argv[])
 		std::exit(EXIT_FAILURE);
 	}
 
-	TFile *const f = new TFile(out, "RECREATE");
-	TChain *const t = new TChain(tree);
+	if (trees.size() == 0)
+		trees.push_back("ntp_cluster");
 
-	for (int i = optind; i < argc; ++i) {
-		t->Add(argv[i]);
-		std::cout << "Added: " << argv[i] << '\n';
+	TFile *const f = new TFile(out, "RECREATE");
+
+	for (size_t i = 0; i < trees.size(); ++i) {
+		TChain *const t = new TChain(trees[i]);
+		for (int j = optind; j < argc; ++j) {
+			t->Add(argv[j]);
+			std::
+			    cout << "Added (" << trees[i] << "): " << argv[j] <<
+			    '\n';
+		}
+
+		t->CloneTree(-1, "fast");
+		delete t;
 	}
 
-	t->CloneTree(-1, "fast");
 	f->Write();
 
 	std::exit(EXIT_SUCCESS);
