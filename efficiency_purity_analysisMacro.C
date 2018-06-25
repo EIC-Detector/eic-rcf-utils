@@ -36,8 +36,8 @@ int efficiency_purity_analysisMacro()
 
   //************EDIT CUTS HERE**************//
   //*
-  float ep[]={0.8,0.9};
-  float prob[]={0.0,0.2};
+  float ep[]={0.807,0.702,0.912};
+  float prob[]={0.0,0.02};
   //*
   //****************************************//
 
@@ -49,8 +49,10 @@ int efficiency_purity_analysisMacro()
   //*
   //* getInfo(True GeV,"C" or "E" depending on detector,array,array)//
   //*
-  getInfo(1,"C",ep,prob,size_ep,size_prob);
-  getInfo(5,"E",ep,prob,size_ep,size_prob);
+  getInfo(2,"C",ep,prob,size_ep,size_prob);
+  getInfo(5,"C",ep,prob,size_ep,size_prob);
+  
+  //getInfo(5,"E",ep,prob,size_ep,size_prob);
   //*
   //********************************************************//
   std::cout<<"******************************************************************"<<std::endl;
@@ -68,12 +70,16 @@ TString getCut(float value)
 void printInfoCEMC(float truePositive, float falsePositive, float purity, TString ep_cut, TString prob_cut)
 {
   //std::cout<<"E/p > "<<ep_cut<<" : Prob > "<<prob_cut<<" | T.P = "<<truePositive<<" | F.P = "<<falsePositive<<" | Purity = "<<purity<<std::endl;
-  printf("E/p > %1.4s : Prob > %1.4s\t | T.P = %2.4f | F.P = %2.4f | Purity = %2.4f\n",ep_cut.Data(),prob_cut.Data(),truePositive,falsePositive,purity);
+  stringstream s;
+  s<<prob_cut.Data();
+  double x;
+  s>>x;
+  printf("E/p > %1.4s : Prob > %1.4f | T.P = %2.4f | F.P = %2.4f | Purity = %2.4f\n",ep_cut.Data(),x,truePositive,falsePositive,purity);
 } 
 
 void printInfoEEMC(float truePositive, float falsePositive, float purity, TString ep_cut)
 {
-  printf("E/True E > %1.4s \t | T.P = %2.4f | F.P = %2.4f | Purity = %2.4f\n",ep_cut.Data(),truePositive,falsePositive,purity);
+  printf("E/True E > %1.4s | T.P = %2.4f | F.P = %2.4f | Purity = %2.4f\n",ep_cut.Data(),truePositive,falsePositive,purity);
 } 
 
 void printTitle(TString detector, int GeV)
