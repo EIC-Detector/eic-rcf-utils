@@ -31,14 +31,14 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     -l,--dis-library-path                 specifies install path of compiled EICAnalysis DIS libraries
     -h,--help                             displays this message
     
-The script also has support for running the simulations through `Fun4ALL_EICAnalysis_DIS.C` as soon as they are done.The `-d` option is used to enable this. The path to the directory containing the file must be specified with `-a` if it does not match the default one specified in the script. The EICAnalysis module must be [compiled and installed](https://wiki.bnl.gov/sPHENIX/index.php/Example_of_using_DST_nodes) and the path to the `lib` directory in the install path of the module must be specified using `-l` if it does not match the default one specified in the script.
+The script also has support for running the simulations through `Fun4All_EICAnalysis_DIS.C` as soon as they are done.The `-d` option is used to enable this. The path to the directory containing the file must be specified with `-a` if it does not match the default one specified in the script. The `EICAnalysis` module must be [compiled and installed](https://wiki.bnl.gov/sPHENIX/index.php/Example_of_using_DST_nodes) and the path to the `lib` directory in the install path of the module must be specified using `-l` if it does not match the default one specified in the script.
 
 ##### Examples
 Run a simulation of 10,000 events in batches of 100, storing the results into the directory `my-simulation`
 
     run-particle-gun.sh -n 10000 -b 100 -r my-simulation
 
-Run a simulation of 100 events in batches of 5, then run them through the `Fun4ALL_EICAnalysis_DIS.C` macro, storing the results into the directory `my-dis-analysis`.
+Run a simulation of 100 events in batches of 5, then run them through the `Fun4All_EICAnalysis_DIS.C` macro, storing the results into the directory `my-dis-analysis`. This example also demonstrates how to specify a new directory for the `Fun4All_EICAnalysis_DIS.C` and for the `lib` directory in the install path of the `EICAnalysisModule` if they are not the default ones.
     
      run-particle-gun.sh -n 100 -b 5 -r my-dis-analysis -l ~/tools/eic-analysis/lib -a ~/tools/analysis/EICAnalysis/macros/diskinematics_fun4all/
 
