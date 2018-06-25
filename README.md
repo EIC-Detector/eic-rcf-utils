@@ -31,7 +31,7 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     -l,--dis-library-path                 specifies install path of compiled EICAnalysis DIS libraries
     -h,--help                             displays this message
     
-The script also has support for running the simulations through `Fun4ALL_EICAnalysis_DIS.C` as soon as they are done.The `-d` option is used to enable this. The path to the directory containing the file must be specified with `-a` if it does not match the default one specified in the script. The EICAnalysis module must be (compiled and installed)[https://wiki.bnl.gov/sPHENIX/index.php/Example_of_using_DST_nodes] and the path to the `lib` directory in the install path of the module must be specified using `-l` if it does not match the default one specified in the script.
+The script also has support for running the simulations through `Fun4ALL_EICAnalysis_DIS.C` as soon as they are done.The `-d` option is used to enable this. The path to the directory containing the file must be specified with `-a` if it does not match the default one specified in the script. The EICAnalysis module must be [compiled and installed](https://wiki.bnl.gov/sPHENIX/index.php/Example_of_using_DST_nodes) and the path to the `lib` directory in the install path of the module must be specified using `-l` if it does not match the default one specified in the script.
 
 ##### Examples
 Run a simulation of 10,000 events in batches of 100, storing the results into the directory `my-simulation`
