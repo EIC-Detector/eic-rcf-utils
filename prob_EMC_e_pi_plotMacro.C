@@ -36,7 +36,7 @@ TH1F* fillHist(TH1F *THE_HIST, TTree *THE_TREE)
       THE_TREE->GetEntry(entryInChain);
       for(int i=0;i<shower_probability.size();i++)
 	{
-	  if(measured_energy[i]>0.5&&shower_probability[i]>0.01) //Cuts
+	  if(measured_energy[i]>0.5) //Cuts
 	    THE_HIST->Fill(shower_probability[i]);
 	}
     }
@@ -47,12 +47,12 @@ TH1F* fillHist(TH1F *THE_HIST, TTree *THE_TREE)
 
 void histToPNG(TH1F* h_p, TH1F* h_e, char * title, char * saveFileName)
 {
-  TCanvas *cPNG = new TCanvas("cPNG",title,600,400);
+  TCanvas *cPNG = new TCanvas("cPNG",title,800,400);
   TImage *img = TImage::Create();
   
   gPad->SetLeftMargin(0.3);
-  h_e->Draw();
-  h_p->Draw("SAME");
+  h_p->Draw();
+  h_e->Draw("SAME");
   
   auto legend = new TLegend(0.05,0.7,0.25,0.5,title);
   legend->AddEntry(h_p,"Pions","l");
