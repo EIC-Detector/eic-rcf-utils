@@ -43,19 +43,24 @@ Run a simulation of 100 events in batches of 5, then run them through the `Fun4A
      run-particle-gun.sh -n 100 -b 5 -r my-dis-analysis -l ~/tools/eic-analysis/lib -a ~/tools/analysis/EICAnalysis/macros/diskinematics_fun4all/
 
 ### merge-trees
-`merge-trees` takes a collection of ROOT files containing the same tree produced by `run-particle-gun.sh` (or through any other process; `merge-trees` doesn't care) and merges those trees into one ROOT file. 
+`merge-trees` takes a collection of ROOT files containing the same tree produced by `run-particle-gun.sh` (or through any other process; `merge-trees` doesn't care) and merges those trees into one ROOT file. By default, if no trees are explicitly specified,  `merge-trees` will look at the first ROOT file passed and will simply merge all of the trees found in that first file.
 
     Usage: merge-trees [OPTIONS]... [FILE]...
     Merge trees from specified FILEs into a single ROOT file.
     
     --out, --out=    path where to save merged trees
     --tree, --tree=  which tree to read from files
+    --all            merge all trees found in first file passed (default behaviour)
     --help           print this message
 
 ##### Examples
 Merge the cluster calorimeter data (`ntp_cluster`) from each batch into one file named `my-simulation.root`
 
     merge-trees --out my-simulation.root --tree ntp_cluster *cemc*
+    
+Merge all of the SVTX data from each batch into one file named `Merged.root` (the default output file).
+
+    merge-trees *svtx*
     
 ## Analysis Macros
 ### Plot-Energy-EMC.C
