@@ -11,10 +11,34 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     # Note, the following works only for the C-shell, which is the most common shell on sPHENIX computing account
     # To find out what shell you have, do 'echo $SHELL' (without the quotes)
     # It is also likely that you are using bash
-    # In that case, replace the line below with: 'export PATH="$PWD/eic-utils-bin:$PATH' (without the quotes)
-    echo "setenv PATH "$PWD/eic-utils-bin:$PATH" >> ~/.cshrc # Add folder to PATH for easy usage of tools
+    # In that case, replace the line below with: 'echo "export PATH=\"$PWD/eic-utils-bin:\$PATH\"" >> ~/.bashrc' (without the ')
+    echo "setenv PATH \"$PWD/eic-utils-bin:\$PATH\"" >> ~/.cshrc # Add folder to PATH for easy usage of tools
     # For bash, replace ~/.cshrc with ~/.bashrc
     source ~/.cshrc
+
+You may also need to build and install the analysis module for use with `run-particle-gun.sh`:
+
+    cd
+    git clone https://github.com/sPHENIX-Collaboration/analysis/
+    mkdir eic-build
+    mkdir eic-analysis
+    source /opt/sphenix/core/bin/sphenix_setup.csh # make sure you're using csh for this to work
+    cd eic-build
+    ~/analysis/EICAnalysis/autogen.sh --prefix=$HOME/eic-analysis
+    make -j 4
+    make install
+    cd
+    rm -rf eic-build
+    # Note, the following works only for the C-shell, which is the most common shell on sPHENIX computing account
+    # To find out what shell you have, do 'echo $SHELL' (without the quotes)
+    # It is also likely that you are using bash
+    # In that case, replace the line below with: 'echo "export LD_LIBRARY_PATH=\"$HOME/\$LD_LIBRARY_PATH\"" >> ~/.bashrc' (without the ')
+    echo "setenv LD_LIBRARY_PATH \"$HOME/eic-analysis/lib:\$LD_LIBRARY_PATH\"" >> ~/.cshrc # Add folder to PATH for easy usage of tools
+    # For bash, replace ~/.cshrc with ~/.bashrc
+    source ~/.cshrc
+ 
+
+    
 
 ## Scripts
 ### run-particle-gun.sh
@@ -31,7 +55,7 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     -l,--dis-library-path                 specifies install path of compiled EICAnalysis DIS libraries
     -h,--help                             displays this message
     
-The script also has support for running the simulations through `Fun4All_EICAnalysis_DIS.C` as soon as they are done.The `-d` option is used to enable this. The path to the directory containing the file must be specified with `-a` if it does not match the default one specified in the script. The `EICAnalysis` module must be [compiled and installed](https://wiki.bnl.gov/sPHENIX/index.php/Example_of_using_DST_nodes) and the path to the `lib` directory in the install path of the module must be specified using `-l` if it does not match the default one specified in the script.
+The script also has support for running the simulations through `Fun4All_EICAnalysis_DIS.C` as soon as they are done.The `-d` option is used to enable this. The path to the directory containing the file must be specified with `-a` if it does not match the default one specified in the script. The `EICAnalysis` module must be [compiled and installed](https://wiki.bnl.gov/sPHENIX/index.php/Example_of_using_DST_nodes) and the path to the `lib` directory in the install path of the module must be specified using `-l` if it does not match the default one specified in the script. See the setup instructions for the easiest way to compile and install the analysis modules.
 
 ##### Examples
 Run a simulation of 10,000 events in batches of 100, storing the results into the directory `my-simulation`
