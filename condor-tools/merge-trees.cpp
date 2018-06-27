@@ -15,6 +15,8 @@
 #include <getopt.h>
 
 #include "TFile.h"
+#include "TObject.h"
+#include "TTree.h"
 #include "TChain.h"
 
 enum command_line_options {
@@ -96,14 +98,40 @@ int main(int argc, char *argv[])
 			trees.push_back(ftrees->At(i)->GetName());
 	}
 
+	/* update each tree to give it a tree numer */
+	for (size_t i = 0; i < trees.size(); ++i) {
+		for (int j = optind; j < argc; ++j) {
+			if (verbose)
+				std::
+				    cout << "Adding tree_number branch tree " <<
+				    trees[i] << " in '" << argv[j] << "'." <<
+				    '\n';
+
+			TFile *const cf = new TFile(argv[j], "UPDATE");
+			TTree *const ct = (TTree *) cf->Get(trees[i]);
+			Int_t n;
+			TBranch *const tree_number =
+			    ct->Branch("tree_number", &n, "tree_number/I");
+
+			const Long64_t nentries = ct->GetEntries();
+			for (Long64_t e = 0; e < nentries; ++e) {
+				n = j - optind;
+				tree_number->Fill();
+			}
+			ct->Write("", TObject::kOverwrite);
+			cf->Write();
+			cf->Close();
+
+		}
+	}
+
 	TFile *const f = new TFile(out, "RECREATE");
 	for (size_t i = 0; i < trees.size(); ++i) {
 		TChain *const t = new TChain(trees[i]);
 		for (int j = optind; j < argc; ++j) {
 			t->Add(argv[j]);
 			if (verbose)
-				std::
-				    cout << "Added (" << trees[i] << "): " <<
+				std::cout << "Added (" << trees[i] << "): " <<
 				    argv[j]
 				    << '\n';
 		}
@@ -113,6 +141,7 @@ int main(int argc, char *argv[])
 	}
 
 	f->Write();
+	f->Close();
 
 	std::exit(EXIT_SUCCESS);
 }
