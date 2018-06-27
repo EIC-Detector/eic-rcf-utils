@@ -174,6 +174,42 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 
+/* histogramst is a 2-D array, where each entry is a collection of all the particle readings for a particular detectors
+ * Thus the first item in the array might contain the readings for the pions and electrons in CEMC detector
+ * The second might contain the readings for the pions and electrons in the EEMC, etc, etc
+ *
+ */
+void histogram_to_png(const std::vector<std::vector<TH1F>>& histograms, 
+		      const std::vector<const char *>& legend_headers, 
+		      const std::vector<const char *>& legend_entries,
+		      const char *const title, 
+		      const char *const save_file_name)
+{
+	TCanvas cPNG("cPNG", title, 1200, 400);
+	TImage *const img = TImage::Create();
+
+	cPNG.Divide((int) histograms.size(), 1);
+	for (int i = 0; i < histograms.size(); ++i) {
+		cPNG.cd(1);
+		gPad->SetLogy();
+		for (int j = 0; j < histograms[i].size(); ++j) {
+			histograms[i][j]->GetYAxis()->SetRangeUser(0.0001, 1);
+			histograms[i][j]->Draw("SAME");
+		}
+		gPad->RedrawAxis();
+		TLegend *const legend = new TLegend(0.70, 0.9, 0.95, 0.65, legend_headers[i]);
+		for (int j = 0; j < histograms[i].size(); ++j)
+			legend->AddEntry(histograms[i][j], legend_entries[j], "l");
+
+		legend->Draw();
+	}
+
+	img->FromPad(&cPNG);
+	img->WriteImage(save_file_name);
+
+	delete img;
+}
+			
 void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 		      TH1F * const h_pion_EEMC, TH1F * const h_electron_EEMC,
 		      TH1F * const h_pion_FEMC, TH1F * const h_electron_FEMC,
