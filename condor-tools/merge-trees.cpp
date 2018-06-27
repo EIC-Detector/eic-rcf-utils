@@ -6,6 +6,7 @@
  * --out, --out=		path where to save merged trees
  * --tree, --tree=		which tree to read from files
  * --all			merge all trees found in first file passed (default behaviour)
+ *  --verbose                   print the trees and files being merged
  * --help			print this message
 */
 #include <iostream>
@@ -20,6 +21,7 @@ enum command_line_options {
 	option_out = 1,
 	option_tree,
 	option_all,
+	option_verbose,
 	option_help,
 };
 
@@ -27,8 +29,9 @@ int main(int argc, char *argv[])
 {
 	static const struct option long_options[] {
 		{"out", required_argument, NULL, option_out}, 
-		{"tree", required_argument, NULL, option_tree}, 
+		{ "tree", required_argument, NULL, option_tree}, 
 		{"all", no_argument, NULL, option_all}, 
+		{"verbose", no_argument, NULL, option_verbose}, 
 		{"help", no_argument, NULL, option_help}, 
 		{0, 0, 0, 0}
 	};
@@ -37,6 +40,7 @@ int main(int argc, char *argv[])
 	std::vector < const char *>trees;
 
 	bool merge_all_specified = false;
+	bool verbose = false;
 	for (;;) {
 		int option_index = 0;
 
@@ -57,6 +61,9 @@ int main(int argc, char *argv[])
 			merge_all_specified = true;
 			trees.clear();
 			break;
+		case option_verbose:
+			verbose = true;
+			break;
 		case option_help:
 			const char *const help_message =
 			    "Usage: merge-trees [OPTION]... [FILE]...\n"
@@ -64,6 +71,7 @@ int main(int argc, char *argv[])
 			    "--out, --out=\t\t\tpath where to save merged trees\n"
 			    "--tree, --tree=\t\t\twhich tree to read from files\n"
 			    "--all          \t\t\tmerge all trees found in first file passed (default behaviour)\n"
+			    "--verbose      \t\t\tprint the trees and files being merged\n"
 			    "--help\t\t\t\tprint this message\n";
 			std::cout << help_message;
 			std::exit(EXIT_SUCCESS);
@@ -77,9 +85,8 @@ int main(int argc, char *argv[])
 
 	/* Add all trees from first file passed */
 	if (trees.size() == 0) {
-		if (!merge_all_specified)
-			std::
-			    cout <<
+		if (!merge_all_specified && verbose)
+			std::cout <<
 			    "No trees specified, will merge all trees found in first file passed.\n";
 
 		TFile *const f = new TFile(argv[optind]);
@@ -94,8 +101,11 @@ int main(int argc, char *argv[])
 		TChain *const t = new TChain(trees[i]);
 		for (int j = optind; j < argc; ++j) {
 			t->Add(argv[j]);
-			std::cout << "Added (" << trees[i] << "): " << argv[j]
-			    << '\n';
+			if (verbose)
+				std::
+				    cout << "Added (" << trees[i] << "): " <<
+				    argv[j]
+				    << '\n';
 		}
 
 		t->CloneTree(-1, "fast");
