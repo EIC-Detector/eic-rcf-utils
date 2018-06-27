@@ -24,8 +24,8 @@ enum particle_type { electron, pion };
 enum detector { cemc, eemc, femc };
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
-void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
-		    const bool normalize);
+void fill_histogram(TH1F * const h, TTree * const t, const Float_t true_energy,
+		    const Float_t min_value, const bool normalize);
 void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 		      TH1F * const h_pion_EEMC, TH1F * const h_electron_EEMC,
 		      TH1F * const h_pion_FEMC, TH1F * const h_electron_FEMC,
@@ -35,13 +35,13 @@ void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 		      const char *const femc_label);
 char *generate_name(const particle_type p, const int particle_energy_gev,
 		    const detector d);
-char *generate_file_path(const particle_type p,
-			 const int particle_energy_gev, const detector d);
+char *generate_file_path(const particle_type p, const int particle_energy_gev,
+			 const detector d);
 char *generate_save_name(const int particle_energy_gev);
 char *generate_title(const int particle_energy_gev);
 char *generate_label(const int particle_energy_gev, const detector d);
 
-void Plot_Energy_EMC()
+void Plot_Measured_Energy_Over_True_Energy_EMC()
 {
 
 	/* 
@@ -83,8 +83,10 @@ void Plot_Energy_EMC()
 			      (electron, energy_levels[i], cemc),
 			      "ntp_cluster");
 
-		fill_histogram(h_pion_cemc, t_pion_cemc, 0.3, true);
-		fill_histogram(h_electron_cemc, t_electron_cemc, 0.3, true);
+		fill_histogram(h_pion_cemc, t_pion_cemc, energy_levels[i], 0.3,
+			       true);
+		fill_histogram(h_electron_cemc, t_electron_cemc,
+			       energy_levels[i], 0.3, true);
 
 		/* EEMC */
 		TH1F *const h_pion_eemc = h_base_p->Clone();
@@ -102,8 +104,10 @@ void Plot_Energy_EMC()
 			      (electron, energy_levels[i], eemc),
 			      "ntp_cluster");
 
-		fill_histogram(h_pion_eemc, t_pion_eemc, 0.3, true);
-		fill_histogram(h_electron_eemc, t_electron_eemc, 0.3, true);
+		fill_histogram(h_pion_eemc, t_pion_eemc, energy_levels[i], 0.3,
+			       true);
+		fill_histogram(h_electron_eemc, t_electron_eemc,
+			       energy_levels[i], 0.3, true);
 
 		/* FEMC */
 		TH1F *const h_pion_femc = h_base_p->Clone();
@@ -121,8 +125,10 @@ void Plot_Energy_EMC()
 			      (electron, energy_levels[i], femc),
 			      "ntp_cluster");
 
-		fill_histogram(h_pion_femc, t_pion_femc, 0.3, true);
-		fill_histogram(h_electron_femc, t_electron_femc, 0.3, true);
+		fill_histogram(h_pion_femc, t_pion_femc, energy_levels[i], 0.3,
+			       true);
+		fill_histogram(h_electron_femc, t_electron_femc,
+			       energy_levels[i], 0.3, true);
 
 		histogram_to_png(h_pion_cemc, h_electron_cemc,
 				 h_pion_eemc, h_electron_eemc,
@@ -150,13 +156,13 @@ TTree *load_tree(const char *const file_name, const char *const tree_name)
  * entries. The axes titles are furthermore assumed to be generic and have
  * been already set.
  */
-void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
-		    const bool normalize)
+void fill_histogram(TH1F * const h, TTree * const t, const Float_t true_energy,
+		    const Float_t min_value, const bool normalize)
 {
 	Float_t measured_energy;
-	Float_t true_energy;
+//      Float_t true_energy;
 	t->SetBranchAddress("e", &measured_energy);
-	t->SetBranchAddress("ge", &true_energy);
+//      t->SetBranchAddress("ge", &true_energy);
 	Int_t nentries = Int_t(t->GetEntries());
 
 	for (Int_t i = 0; i < nentries; ++i) {
