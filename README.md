@@ -67,7 +67,7 @@ Run a simulation of 100 events in batches of 5, then run them through the `Fun4A
      run-particle-gun.sh -n 100 -b 5 -r my-dis-analysis -l ~/tools/eic-analysis/lib -a ~/tools/analysis/EICAnalysis/macros/diskinematics_fun4all/
 
 ### merge-trees
-`merge-trees` takes a collection of ROOT files containing the same tree produced by `run-particle-gun.sh` (or through any other process; `merge-trees` doesn't care) and merges those trees into one ROOT file. By default, if no trees are explicitly specified,  `merge-trees` will look at the first ROOT file passed and will simply merge all of the trees found in that first file.
+`merge-trees` takes a collection of ROOT files containing the same tree produced by `run-particle-gun.sh` (or through any other process; `merge-trees` doesn't care) and merges those trees into one ROOT file. By default, if no trees are explicitly specified,  `merge-trees` will look at the first ROOT file passed and will simply merge all of the trees found in that first file. `merge-trees` also adds a `tree_number` branch to each file it reads such that, in the merged ROOT file, one can distinguish rows based on which file the row came from. `tree_number` takes on ascending values starting from 0; the first file passed will have a `tree_number` of `0`, the second file passed will have a `tree_number` of `1`, and so on.
 
     Usage: merge-trees [OPTIONS]... [FILE]...
     Merge trees from specified FILEs into a single ROOT file.
@@ -75,6 +75,7 @@ Run a simulation of 100 events in batches of 5, then run them through the `Fun4A
     --out, --out=    path where to save merged trees
     --tree, --tree=  which tree to read from files
     --all            merge all trees found in first file passed (default behaviour)
+    --verbose        print the trees and files being merged
     --help           print this message
 
 ##### Examples
