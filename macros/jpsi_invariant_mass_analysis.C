@@ -15,11 +15,12 @@ TFile *f;
 TTree *t;
 std::vector<double> invariant_mass_cluster;
 std::vector<double> invariant_mass_track;
+TString file_name = "JP_C_10.root";
+
 // Main Code
 
 int jpsi_invariant_mass_analysis()
 {
-  TString file_name = "JP_C_10.root";
   std::vector<std::vector<float> > vect_1 = get_event_cluster_data(file_name);
   for(int i = 0; i<vect_1.at(0).size()/2; i++)
     {
@@ -83,20 +84,25 @@ std::vector<std::vector<float> > get_event_cluster_data(TString File)
   std::vector<float> phi;
   std::vector<float> energy;
   std::vector<float> pt;
+  std::vector<float> ptotal;
 
   std::vector<float>* theta_pointer=&theta;
   std::vector<float>* eta_pointer=&eta;
   std::vector<float>* phi_pointer=&phi;
   std::vector<float>* energy_pointer=&energy;
   std::vector<float>* pt_pointer=&pt;
+  std::vector<float>* ptotal_pointer=&ptotal;
+
   t->SetBranchAddress("em_cluster_theta",&theta_pointer);
   t->SetBranchAddress("em_cluster_eta",&eta_pointer);
   t->SetBranchAddress("em_cluster_phi",&phi_pointer);
   t->SetBranchAddress("em_cluster_e",&energy_pointer);
   t->SetBranchAddress("em_cluster_pt",&pt_pointer);
+  t->SetBranchAddress("em_track_ptotal",&ptotal_pointer);
   
   const float energy_cut = 0.3;
-
+  const float ep_cut = 0.8;
+  
   Int_t nentries = Int_t(t->GetEntries());
   for(Int_t entryInChain=0; entryInChain<nentries; entryInChain++)
     {
@@ -106,13 +112,17 @@ std::vector<std::vector<float> > get_event_cluster_data(TString File)
       int count=0;
       for(unsigned j = 0; j<theta.size(); j++)
 	{
-	  if(energy.at(j)>energy_cut) count++;
+	  if(ptotal.at(j)!=0)
+	    {
+	      if(energy.at(j)>energy_cut && energy.at(j)/ptotal.at(j)>ep_cut) 
+		count++;
+	    }
 	}
       if(count==2) //only two tracks, needs updating
 	{
 	  for(unsigned i = 0; i<theta.size(); i++)
 	    {
-	      if(energy.at(i)>energy_cut)
+	      if(energy.at(i)>energy_cut && energy.at(i)/ptotal.at(i)>ep_cut)
 		{
 		  return_theta.push_back(theta.at(i));
 		  return_eta.push_back(eta.at(i));
@@ -149,19 +159,24 @@ std::vector<std::vector<float> > get_event_track_data(TString File)
   std::vector<float> phi;
   std::vector<float> energy;
   std::vector<float> pt;
+  std::vector<float> ptotal;
 
   std::vector<float>* theta_pointer=&theta;
   std::vector<float>* eta_pointer=&eta;
   std::vector<float>* phi_pointer=&phi;
   std::vector<float>* energy_pointer=&energy;
   std::vector<float>* pt_pointer=&pt;
+  std::vector<float>* ptotal_pointer=&ptotal;
+
   t->SetBranchAddress("em_track_theta",&theta_pointer);
   t->SetBranchAddress("em_track_eta",&eta_pointer);
   t->SetBranchAddress("em_track_phi",&phi_pointer);
   t->SetBranchAddress("em_cluster_e",&energy_pointer);
   t->SetBranchAddress("em_track_ptrans",&pt_pointer);
+  t->SetBranchAddress("em_track_ptotal",&ptotal_pointer);
   
   const float energy_cut = 0.3;
+  const float ep_cut=0.8;
 
   Int_t nentries = Int_t(t->GetEntries());
   for(Int_t entryInChain=0; entryInChain<nentries; entryInChain++)
@@ -172,13 +187,17 @@ std::vector<std::vector<float> > get_event_track_data(TString File)
       int count=0;
       for(unsigned j = 0; j<theta.size(); j++)
 	{
-	  if(energy.at(j)>energy_cut) count++;
+	  if(ptotal.at(j)!=0)
+	    {
+	      if(energy.at(j)>energy_cut && energy.at(j)/ptotal.at(j)>ep_cut) 
+		count++;
+	    }
 	}
       if(count==2) //only two tracks, needs updating
 	{
 	  for(unsigned i = 0; i<theta.size(); i++)
 	    {
-	      if(energy.at(i)>energy_cut)
+	      if(energy.at(i)>energy_cut && energy.at(i)/ptotal.at(i)>ep_cut)
 		{
 		  return_theta.push_back(theta.at(i));
 		  return_eta.push_back(eta.at(i));
