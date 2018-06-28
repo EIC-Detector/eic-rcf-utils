@@ -155,8 +155,10 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 {
 	Float_t measured_energy;
 	Float_t true_energy;
+	Float_t true_eta;
 	t->SetBranchAddress("e", &measured_energy);
 	t->SetBranchAddress("ge", &true_energy);
+	t->SetBranchAddress("geta",&true_eta);
 	Int_t nentries = Int_t(t->GetEntries());
 
 	for (Int_t i = 0; i < nentries; ++i) {
@@ -165,7 +167,10 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 
 		t->GetEntry(i);
 		if (measured_energy > min_value && true_energy > 0.1)
+		  {
+		    if((true_eta>-0.5&&true_eta<0.5)||(true_eta>-3&&true_eta<-2)||(true_eta>2&&true_eta<3))
 			h->Fill(measured_energy / true_energy);
+		  }
 	}
 	if (normalize)
 		h->Scale(1 / h->GetEntries());
