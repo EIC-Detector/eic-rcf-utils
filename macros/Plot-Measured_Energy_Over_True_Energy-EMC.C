@@ -160,20 +160,12 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t true_energy,
 		    const Float_t min_value, const bool normalize)
 {
 	Float_t measured_energy;
-<<<<<<< HEAD
 //      Float_t true_energy;
 	t->SetBranchAddress("e", &measured_energy);
 //      t->SetBranchAddress("ge", &true_energy);
 	Float_t true_eta;
 	t->SetBranchAddress("geta", &true_eta);
 
-=======
-	Float_t true_energy;
-	Float_t true_eta;
-	t->SetBranchAddress("e", &measured_energy);
-	t->SetBranchAddress("ge", &true_energy);
-	t->SetBranchAddress("geta",&true_eta);
->>>>>>> 9109c8a7e849cc8544ebd11827b01c9d884aa7f9
 	Int_t nentries = Int_t(t->GetEntries());
 
 	for (Int_t i = 0; i < nentries; ++i) {
@@ -181,18 +173,11 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t true_energy,
 			break;
 
 		t->GetEntry(i);
-<<<<<<< HEAD
 		if (((true_eta > -0.5 && true_eta < 0.5)
 		     || (true_eta > -3 && true_eta < -2)
 		     || (true_eta > 2 && true_eta < 3))
-		    && measured_energy > min_value && true_energy > 0.1)
-=======
-		if (measured_energy > min_value && true_energy > 0.1)
-		  {
-		    if((true_eta>-0.5&&true_eta<0.5)||(true_eta>-3&&true_eta<-2)||(true_eta>2&&true_eta<3))
->>>>>>> 9109c8a7e849cc8544ebd11827b01c9d884aa7f9
+		    && (measured_energy > min_value && true_energy > 0.1))
 			h->Fill(measured_energy / true_energy);
-		  }
 	}
 	if (normalize)
 		h->Scale(1 / h->GetEntries());
