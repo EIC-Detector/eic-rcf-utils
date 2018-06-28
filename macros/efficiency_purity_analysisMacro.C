@@ -47,12 +47,14 @@ int efficiency_purity_analysisMacro()
   
   //**************SELECT OUTPUT HERE*************************//
   //*
-  //* getInfo(True GeV,"C" or "E" depending on detector,array,array)//
+  //* getInfo(True GeV,"C","F", "E" depending on detector,array,array)//
   //*
-  getInfo(2,"C",ep,prob,size_ep,size_prob);
-  getInfo(5,"C",ep,prob,size_ep,size_prob);
   
-  //getInfo(5,"E",ep,prob,size_ep,size_prob);
+  getInfo(2,"C",ep,prob,size_ep,size_prob);
+  getInfo(2,"E",ep,prob,size_ep,size_prob);
+  getInfo(2,"F",ep,prob,size_ep,size_prob);
+  
+  
   //*
   //********************************************************//
   std::cout<<"******************************************************************"<<std::endl;
@@ -86,9 +88,10 @@ void printTitle(TString detector, int GeV)
 {
   if(detector=="C")
     std::cout<<"************* CEMC "<<GeV<<"GeV *************"<<std::endl;
-  else
+  else if(detector=="E")
     std::cout<<"************* EEMC "<<GeV<<"GeV *************"<<std::endl;
-  
+  else
+    std::cout<<"************* FEMC "<<GeV<<"GeV *************"<<std::endl;
 }
 void getInfo(int GeV, TString detector,float ep[],float prob[],int sizeOf_ep,int sizeOf_prob)
 {
