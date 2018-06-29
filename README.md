@@ -5,17 +5,10 @@ A collection of shell scripts, programs, and macros to make sPHENIX research eas
     git clone 'https://github.com/EIC-Detector/eic-utils'
     cd eic-utils
     make
-    cd ../
-    mkdir eic-utils-bin
-    cp eic-utils/*.sh eic-utils/merge-trees eic-utils-bin/
-    # Note, the following works only for the C-shell, which is the most common shell on sPHENIX computing account
-    # To find out what shell you have, do 'echo $SHELL' (without the quotes)
-    # It is also likely that you are using bash
-    # In that case, replace the line below with: 'echo "export PATH=\"$PWD/eic-utils-bin:\$PATH\"" >> ~/.bashrc' (without the ')
-    echo "setenv PATH \"$PWD/eic-utils-bin:\$PATH\"" >> ~/.cshrc # Add folder to PATH for easy usage of tools
-    # For bash, replace ~/.cshrc with ~/.bashrc
-    source ~/.cshrc
-
+    # Execute the following line if you want the bin folder added to your path so you can use
+    # the tools anywhere (recommended)
+    make add-to-path
+    
 You may also need to build and install the analysis module for use with `run-particle-gun.sh`:
 
     cd
