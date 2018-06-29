@@ -29,6 +29,7 @@ const double MOMENTUM_MARGIN = 0.01;
 
 void Plot_SVTX_Efficiency() {
 	SetsPhenixStyle();
+	gROOT->SetBatch(true);
 
 	TTree *const ntp_gtrack {load_tree(svtx_file_path, "ntp_gtrack")};
 	TTree *const ntp_track {load_tree(svtx_file_path, "ntp_track")};
@@ -38,6 +39,8 @@ void Plot_SVTX_Efficiency() {
 	Long64_t ntrack {ntp_track->GetEntries()};
 
 	TH1F* h_geta {new TH1F("h_geta", "Psuedorapidity count", 100, -5, 5)};
+	h_geta->SetXTitle("#eta");
+	h_geta->SetYTitle("Count");
 	h_geta->SetLineColor(kBlue);
 	Float_t geta;
 	ntp_gtrack->SetBranchAddress("geta", &geta);
@@ -47,7 +50,10 @@ void Plot_SVTX_Efficiency() {
 		ntp_gtrack->GetEntry(i);
 		h_geta->Fill(geta);
 	}
-TH1F* h_geta_p {new TH1F("h_geta_p", "Psuedorapidity count", 100, -5, 5)}; h_geta_p->SetLineColor(kRed);
+	TH1F* h_geta_p {new TH1F("h_geta_p", "Psuedorapidity count", 100, -5, 5)};
+	h_geta_p->SetXTitle("#eta");
+	h_geta_p->SetYTitle("Count");
+	h_geta_p->SetLineColor(kRed);
 	Float_t gpx, gpy, gpz, px, py, pz;
 	ntp_track->SetBranchAddress("geta", &geta);
 	ntp_track->SetBranchAddress("gpx", &gpx);
@@ -76,19 +82,35 @@ TH1F* h_geta_p {new TH1F("h_geta_p", "Psuedorapidity count", 100, -5, 5)}; h_get
 		if (h_geta->GetBinContent(i + 1) != 0) {
 			x[top] = h_geta->GetBinCenter(i + 1);
 			y[top++] = h_geta_p->GetBinContent(i + 1) * 1.0 / h_geta->GetBinContent(i + 1);
-			std::cout << "x[" << top << "]: " << x[top] << '\t' << "y[" << top << "]: " << y[top] << '\n';
 		}
 	}
 	TGraph *gr {new TGraph(nbins, x, y)};
+	gr->GetXaxis()->SetTitle("#eta");
+	gr->GetYaxis()->SetTitle("Efficiency");
 
-	TCanvas* c {new TCanvas("c", "SVTX Efficiency", 1200, 400)};
+	TCanvas* c {new TCanvas("c", "SVTX Efficiency", 800, 600)};
 	c->Divide(1, 2);
 	c->cd(1);
 	h_geta->GetYaxis()->SetRangeUser(0, 1500);
 	h_geta->Draw();
 	h_geta_p->Draw("SAME");
+	TLegend *l1 {new TLegend(0.70, 0.9, 0.95, 0.65, "Recorded Events")};
+	l1->AddEntry(h_geta, "True Events", "l");
+	l1->AddEntry(h_geta_p, "Reconstruced events", "l");
+	l1->Draw();
+
 	c->cd(2);
 	gr->Draw("AC*");
+	TLegend *l2 {new TLegend(0.70, 0.9, 0.95, 0.65, "Recorded Events")};
+	l2->AddEntry(gr, "Efficiency", "l");
+	l2->Draw();
+
+
+	TImage *const img {TImage::Create()};
+	img->FromPad(c);
+	img->WriteImage("SVTX_Efficiency.png");
+	delete img;
+	gApplication->Terminate(0);
 }
 
 TTree *load_tree(const char *const file_name, const char *const tree_name)
