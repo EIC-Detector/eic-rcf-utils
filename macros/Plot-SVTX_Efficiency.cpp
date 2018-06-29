@@ -18,7 +18,7 @@
 #include "TColor.h"
 #include "TImage.h"
 #include "TApplication.h"
-#include "TGraph.h"
+#include "TGraphErrors.h"
 #include "/sphenix/user/gregtom3/SBU/research/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
 
@@ -38,22 +38,22 @@ void Plot_SVTX_Efficiency() {
 	Long64_t ngtrack {ntp_gtrack->GetEntries()};
 	Long64_t ntrack {ntp_track->GetEntries()};
 
-	TH1F* h_geta {new TH1F("h_geta", "Psuedorapidity count", 100, -5, 5)};
-	h_geta->SetXTitle("#eta");
-	h_geta->SetYTitle("Count");
-	h_geta->SetLineColor(kBlue);
+	TH1F* h_true_count {new TH1F("h_true_count", "Psuedorapidity count", 100, -5, 5)};
+	h_true_count->SetXTitle("#eta");
+	h_true_count->SetYTitle("Count");
+	h_true_count->SetLineColor(kBlue);
 	Float_t geta;
 	ntp_gtrack->SetBranchAddress("geta", &geta);
 	for (Long64_t i {0}; i < ngtrack; ++i) {
 		if (ntp_gtrack->LoadTree(i) < 0)
 			break;
 		ntp_gtrack->GetEntry(i);
-		h_geta->Fill(geta);
+		h_true_count->Fill(geta);
 	}
-	TH1F* h_geta_p {new TH1F("h_geta_p", "Psuedorapidity count", 100, -5, 5)};
-	h_geta_p->SetXTitle("#eta");
-	h_geta_p->SetYTitle("Count");
-	h_geta_p->SetLineColor(kRed);
+	TH1F* h_reco_count {new TH1F("h_reco_count", "Psuedorapidity count", 100, -5, 5)};
+	h_reco_count->SetXTitle("#eta");
+	h_reco_count->SetYTitle("Count");
+	h_reco_count->SetLineColor(kRed);
 	Float_t gpx, gpy, gpz, px, py, pz;
 	ntp_track->SetBranchAddress("geta", &geta);
 	ntp_track->SetBranchAddress("gpx", &gpx);
@@ -71,50 +71,56 @@ void Plot_SVTX_Efficiency() {
 		if (fabs((px - gpx)/gpx) < MOMENTUM_MARGIN
 		&& fabs((py - gpy)/gpy) < MOMENTUM_MARGIN
 		&& fabs((pz - gpz)/gpz) < MOMENTUM_MARGIN)
-			h_geta_p->Fill(geta);
+			h_reco_count->Fill(geta);
 	}
 
-	const Long64_t nbins {h_geta->GetSize() - 2}; /* -2 for underflow and overflow */
+	const Long64_t nbins {h_true_count->GetSize() - 2}; /* -2 for underflow and overflow */
 	Double_t *x {new Double_t[nbins]};
 	Double_t *y {new Double_t[nbins]};
+	Double_t *ey = {new Double_t[nbins]};
 	Long64_t top = 0;
 	for (Long64_t i = 0; i < nbins; ++i) {
-		if (h_geta->GetBinContent(i + 1) != 0) {
-			x[top] = h_geta->GetBinCenter(i + 1);
-			y[top++] = h_geta_p->GetBinContent(i + 1) * 1.0 / h_geta->GetBinContent(i + 1);
+		if (h_true_count->GetBinContent(i + 1) != 0) {
+			const Double_t n = h_reco_count->GetBinContent(i + 1);
+			const Double_t N = h_true_count->GetBinContent(i + 1);
+
+			x[top] = h_true_count->GetBinCenter(i + 1);
+			y[top] = n / N;
+			ey[top++] = sqrt(n/(N*N) + (n*n)/(N*N*N));
 		}
 	}
-	TGraph *gr {new TGraph(top, x, y)};
+	TGraphErrors *gr {new TGraphErrors(top, x, y, nullptr, ey)};
+	gr->SetMarkerColor(kBlue);
+	gr->SetMarkerStyle(21);
+	gr->SetMarkerSize(0.5);
 	gr->GetXaxis()->SetTitle("#eta");
 	gr->GetYaxis()->SetTitle("Efficiency");
 
-	TCanvas* c {new TCanvas("c", "SVTX Efficiency", 800, 600)};
-	c->Divide(1, 2);
-	c->cd(1);
-	h_geta->GetYaxis()->SetRangeUser(0, 1500);
-	h_geta->Draw();
-	h_geta_p->Draw("SAME");
+	TCanvas* count {new TCanvas("count", "SVTX Event Count", 800, 600)};
+	h_true_count->GetYaxis()->SetRangeUser(0, 1500);
+	h_true_count->Draw();
+	h_reco_count->Draw("SAME");
 	TLegend *l1 {new TLegend(0.85, 1, 1, 0.85, "Track")};
 	l1->SetTextSize(0.03);
-	l1->AddEntry(h_geta, "True", "l");
-	l1->AddEntry(h_geta_p, "Reco", "l");
+	l1->AddEntry(h_true_count, "True", "l");
+	l1->AddEntry(h_reco_count, "Reco", "l");
 	l1->Draw();
 	gPad->RedrawAxis();
 
-	c->cd(2);
+	TCanvas* efficiency {new TCanvas("efficiency", "SVTX Efficiency", 800, 600)};
 	gr->GetYaxis()->SetRangeUser(-0.05, 1);
-	gr->Draw();
-	TLegend *l2 {new TLegend(0.85, 1, 1, 0.85, "Track")};
+	gr->Draw("ALP");
+	TLegend *l2 {new TLegend(0.80, 0.95, 0.95, 0.80, "Track")};
 	l2->SetTextSize(0.03);
 	l2->AddEntry(gr, "Efficiency", "l");
 	l2->Draw();
 	gPad->RedrawAxis();
 
-
 	TImage *const img {TImage::Create()};
-	img->FromPad(c);
+	img->FromPad(count);
+	img->WriteImage("SVTX_Event_Count.png");
+	img->FromPad(efficiency);
 	img->WriteImage("SVTX_Efficiency.png");
-	delete img;
 	gApplication->Terminate(0);
 }
 
