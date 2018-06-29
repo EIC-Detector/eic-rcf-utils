@@ -101,7 +101,7 @@ void Plot_SVTX_Efficiency() {
 	l1->Draw();
 
 	c->cd(2);
-	gr->Draw("AC*");
+	gr->Draw();
 	TLegend *l2 {new TLegend(0.85, 1, 1, 0.85, "Track")};
 	l2->SetTextSize(0.03);
 	l2->AddEntry(gr, "Efficiency", "l");
