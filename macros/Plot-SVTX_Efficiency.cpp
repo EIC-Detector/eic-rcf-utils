@@ -84,7 +84,7 @@ void Plot_SVTX_Efficiency() {
 			y[top++] = h_geta_p->GetBinContent(i + 1) * 1.0 / h_geta->GetBinContent(i + 1);
 		}
 	}
-	TGraph *gr {new TGraph(nbins, x, y)};
+	TGraph *gr {new TGraph(top, x, y)};
 	gr->GetXaxis()->SetTitle("#eta");
 	gr->GetYaxis()->SetTitle("Efficiency");
 
@@ -99,13 +99,16 @@ void Plot_SVTX_Efficiency() {
 	l1->AddEntry(h_geta, "True", "l");
 	l1->AddEntry(h_geta_p, "Reco", "l");
 	l1->Draw();
+	gPad->RedrawAxis();
 
 	c->cd(2);
+	gr->GetYaxis()->SetRangeUser(-0.05, 1);
 	gr->Draw();
 	TLegend *l2 {new TLegend(0.85, 1, 1, 0.85, "Track")};
 	l2->SetTextSize(0.03);
 	l2->AddEntry(gr, "Efficiency", "l");
 	l2->Draw();
+	gPad->RedrawAxis();
 
 
 	TImage *const img {TImage::Create()};
