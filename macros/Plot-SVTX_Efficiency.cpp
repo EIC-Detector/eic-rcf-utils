@@ -100,21 +100,21 @@ void Plot_SVTX_Efficiency() {
 	h_true_count->GetYaxis()->SetRangeUser(0, 1500);
 	h_true_count->Draw();
 	h_reco_count->Draw("SAME");
-	TLegend *l1 {new TLegend(0.85, 1, 1, 0.85, "Track")};
+	gPad->RedrawAxis();
+	TLegend *l1 {new TLegend(0.85, .95, .95, 0.85, "Track")};
 	l1->SetTextSize(0.03);
 	l1->AddEntry(h_true_count, "True", "l");
 	l1->AddEntry(h_reco_count, "Reco", "l");
 	l1->Draw();
-	gPad->RedrawAxis();
 
 	TCanvas* efficiency {new TCanvas("efficiency", "SVTX Efficiency", 800, 600)};
 	gr->GetYaxis()->SetRangeUser(-0.05, 1);
 	gr->Draw("ALP");
+	gPad->RedrawAxis();
 	TLegend *l2 {new TLegend(0.80, 0.95, 0.95, 0.80, "Track")};
 	l2->SetTextSize(0.03);
 	l2->AddEntry(gr, "Efficiency", "l");
 	l2->Draw();
-	gPad->RedrawAxis();
 
 	TImage *const img {TImage::Create()};
 	img->FromPad(count);
