@@ -9,6 +9,9 @@ bin/run-particle-gun.sh:
 bin/run-pythia.sh:
 	cp condor-tools/run-pythia.sh bin/
 
+add-to-path:
+	./add-to-path.sh
+
 clean:
 	rm bin/merge-trees bin/Plot-SVTX_Efficiency
 
