@@ -94,14 +94,16 @@ void Plot_SVTX_Efficiency() {
 	h_geta->GetYaxis()->SetRangeUser(0, 1500);
 	h_geta->Draw();
 	h_geta_p->Draw("SAME");
-	TLegend *l1 {new TLegend(0.70, 0.9, 0.95, 0.65, "Recorded Events")};
-	l1->AddEntry(h_geta, "True Events", "l");
-	l1->AddEntry(h_geta_p, "Reconstruced events", "l");
+	TLegend *l1 {new TLegend(0.85, 1, 1, 0.85, "Track")};
+	l1->SetTextSize(0.03);
+	l1->AddEntry(h_geta, "True", "l");
+	l1->AddEntry(h_geta_p, "Reco", "l");
 	l1->Draw();
 
 	c->cd(2);
 	gr->Draw("AC*");
-	TLegend *l2 {new TLegend(0.70, 0.9, 0.95, 0.65, "Recorded Events")};
+	TLegend *l2 {new TLegend(0.85, 1, 1, 0.85, "Track")};
+	l2->SetTextSize(0.03);
 	l2->AddEntry(gr, "Efficiency", "l");
 	l2->Draw();
 
