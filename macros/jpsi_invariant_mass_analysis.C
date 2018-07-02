@@ -102,7 +102,6 @@ std::vector<std::vector<float> > get_event_cluster_data(TString File)
   
   const float energy_cut = 0.3;
   const float ep_cut = 0.8;
-  
   Int_t nentries = Int_t(t->GetEntries());
   for(Int_t entryInChain=0; entryInChain<nentries; entryInChain++)
     {
@@ -177,7 +176,6 @@ std::vector<std::vector<float> > get_event_track_data(TString File)
   
   const float energy_cut = 0.3;
   const float ep_cut=0.8;
-
   Int_t nentries = Int_t(t->GetEntries());
   for(Int_t entryInChain=0; entryInChain<nentries; entryInChain++)
     {
@@ -208,7 +206,6 @@ std::vector<std::vector<float> > get_event_track_data(TString File)
 	    }
 	}
     }
-
   closeFile();
 
   return_vector.push_back(return_theta);

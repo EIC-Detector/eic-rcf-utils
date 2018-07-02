@@ -27,22 +27,22 @@ int jpsi_invariant_mass_plot()
   
   
   std::vector<TString> titles; // Legend Titles
-  titles.push_back("1GeV CEMC Reco M");
-  titles.push_back("2GeV CEMC Reco M");
-  titles.push_back("3GeV CEMC Reco M");
-  titles.push_back("5GeV CEMC Reco M");
-  titles.push_back("8GeV CEMC Reco M");
-  titles.push_back("10GeV CEMC Reco M");
-  titles.push_back("15GeV CEMC Reco M");
-  titles.push_back("20GeV CEMC Reco M");
-  titles.push_back("1GeV FEMC Reco M");
-  titles.push_back("2GeV FEMC Reco M");
-  titles.push_back("3GeV FEMC Reco M");
-  titles.push_back("5GeV FEMC Reco M");
-  titles.push_back("8GeV FEMC Reco M");
-  titles.push_back("10GeV FEMC Reco M");
-  titles.push_back("15GeV FEMC Reco M");
-  titles.push_back("20GeV FEMC Reco M");
+  titles.push_back("1GeV CEMC ");
+  titles.push_back("2GeV CEMC ");
+  titles.push_back("3GeV CEMC ");
+  titles.push_back("5GeV CEMC ");
+  titles.push_back("8GeV CEMC ");
+  titles.push_back("10GeV CEMC ");
+  titles.push_back("15GeV CEMC ");
+  titles.push_back("20GeV CEMC ");
+  titles.push_back("1GeV FEMC ");
+  titles.push_back("2GeV FEMC ");
+  titles.push_back("3GeV FEMC ");
+  titles.push_back("5GeV FEMC ");
+  titles.push_back("8GeV FEMC ");
+  titles.push_back("10GeV FEMC ");
+  titles.push_back("15GeV FEMC ");
+  titles.push_back("20GeV FEMC ");
 
 
   std::vector<TString> save_names;
@@ -75,8 +75,9 @@ int jpsi_invariant_mass_plot()
       TH1F *h2 = new TH1F("h2","h2",120,0,5);
       h1->SetLineColor(kRed);
       h2->SetLineColor(kBlue);
-      h2->GetXaxis()->SetTitle("Reco Mass (GeV/c^2)");
+      h2->GetXaxis()->SetTitle("Invariant Mass (GeV)");
       h2->GetYaxis()->SetTitle("Counts");
+      cout << file_idx << " " << invariant_mass_cluster.size() << endl;
       for(int i = 0; i<invariant_mass_cluster.size(); i++)
 	{
 	  h1->Fill(invariant_mass_cluster.at(i));
@@ -87,6 +88,8 @@ int jpsi_invariant_mass_plot()
 	}
       histToPNG(h1,h2,titles.at(file_idx),save_names.at(file_idx));
       delete h1; delete h2; h1=NULL; h2=NULL;
+      invariant_mass_cluster.clear();
+      invariant_mass_track.clear();
     }
       return 0;
 }
