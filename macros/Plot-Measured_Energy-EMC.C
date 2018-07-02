@@ -267,7 +267,7 @@ char *generate_save_file_path(const particle_type p)
 			name << "-CEMC";
 			break;
 		case eemc:
-			name << "-EMC";
+			name << "-EEMC";
 			break;
 		case femc:
 			name << "-FEMC";
