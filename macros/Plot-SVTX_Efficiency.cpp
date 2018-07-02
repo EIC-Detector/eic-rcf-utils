@@ -25,7 +25,7 @@
 TTree *load_tree(const char *const file_name, const char *const tree_name);
 const char *const svtx_file_path = "/sphenix/user/giorgian/muons/svtx.root";
 
-const double MOMENTUM_MARGIN = 0.01;
+double MOMENTUM_MARGIN = 0.01;
 
 void Plot_SVTX_Efficiency() {
 	SetsPhenixStyle();
@@ -118,9 +118,14 @@ void Plot_SVTX_Efficiency() {
 
 	TImage *const img {TImage::Create()};
 	img->FromPad(count);
-	img->WriteImage("SVTX_Event_Count.png");
+	std::stringstream name;
+	name << "SVTX_Event_Count-" << "margin=" << MOMENTUM_MARGIN << ".png";
+	img->WriteImage(strdup(name.str().c_str()));
+
+	name.str("");
 	img->FromPad(efficiency);
-	img->WriteImage("SVTX_Efficiency.png");
+	name << "SVTX_Efficiency-" << "margin=" << MOMENTUM_MARGIN << ".png";
+	img->WriteImage(strdup(name.str().c_str()));
 	gApplication->Terminate(0);
 }
 
@@ -131,6 +136,11 @@ TTree *load_tree(const char *const file_name, const char *const tree_name)
 
 int main(int argc, char *argv[]) {
 	TApplication app("SVTX Efficiency Plots", &argc, argv);
+	if (argc > 1) {
+		std::stringstream tmp {argv[1]};
+		tmp >> MOMENTUM_MARGIN;
+	}
+
 	Plot_SVTX_Efficiency();
 	app.Run();
 	return 0;
