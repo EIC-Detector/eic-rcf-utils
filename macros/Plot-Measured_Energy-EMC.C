@@ -29,7 +29,7 @@ enum particle_type { electron, pion };
 enum detector { cemc, eemc, femc };
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
-void draw_histogram(const TH1F * const h_base, const particle_type p,
+void draw_histogram(TH1F * const h, const particle_type p,
 		    const int energy_level_gev, const detector d);
 void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 		    const bool normalize);
@@ -41,6 +41,7 @@ char *generate_save_file_path(const particle_type p);
 char *generate_canvas_name(const particle_type p);
 char *generate_canvas_title(const particle_type p);
 char *generate_legend_header(const particle_type p, const detector d);
+char *generate_legend_entry_label(const int particle_energy_gev);
 
 /* Directory where data is stored for plots */
 const char *const data_directory =
@@ -58,7 +59,7 @@ const static enum detector detectors[] = { cemc, eemc, femc };
 const static enum particle_type particles[] = { pion, electron };
 
 /* The color of the plot corresponding to each particle */
-const static Color_t particle_plot_colors[] = { kBlue, kRed };
+const static Color_t plot_colors[] = { kBlue, kRed, kGreen, kOrange, kViolet };
 
 /* These should not be necessary, but root is buggy */
 const int nenergy_levels = NELEMS(energy_levels);
@@ -68,8 +69,7 @@ const int nparticles = NELEMS(particles);
 void Plot_Measured_Energy_EMC()
 {
 	/* sanity check */
-	assert(NELEMS(energy_levels) <= NELEMS(color_offsets));
-	assert(NELEMS(particle_plot_colors) == NELEMS(particles));
+	assert(NELEMS(energy_levels) <= NELEMS(plot_colors));
 
 	SetsPhenixStyle();
 	gROOT->SetBatch(kTRUE);
@@ -78,12 +78,6 @@ void Plot_Measured_Energy_EMC()
 	 * Base Histogram (Recreated from Matching Plots)
 	 */
 	TH1F *const h_base = new TH1F("h_base", "", 100, 0.0, 25);
-	std::vector < TH1F * >particle_histogram_bases;
-	for (int i = 0; i < nparticles; ++i) {
-		TH1F *const h = (TH1F *) h_base->Clone();
-		h->SetLineColor(particle_plot_colors[i]);
-		particle_histogram_bases.push_back(h);
-	}
 
 	std::vector < TCanvas * >particle_canvases;
 	for (int i = 0; i < nparticles; ++i) {
@@ -101,10 +95,8 @@ void Plot_Measured_Energy_EMC()
 			for (int p = 0; p < nparticles; ++p) {
 				/* +1 to account for 1-based indexing */
 				particle_canvases[p]->cd(d + 1);
-				TH1F *const h = (TH1F *)
-				    particle_histogram_bases[p]->Clone();
-				h->SetLineColor(h->GetLineColor() +
-						color_offsets[e]);
+				TH1F *const h = (TH1F *) h_base->Clone();
+				h->SetLineColor(plot_colors[e]);
 				draw_histogram(h, particles[p],
 					       energy_levels[e], detectors[d]);
 			}
@@ -117,6 +109,13 @@ void Plot_Measured_Energy_EMC()
 						       generate_legend_header
 						       (particles[p],
 							detectors[d]));
+			for (int e = 0; e < nenergy_levels; ++e)
+				l->AddEntry(generate_histogram_name
+					    (particles[p], energy_levels[e],
+					     detectors[d]),
+					    generate_legend_entry_label
+					    (energy_levels[e]), "l");
+
 			l->Draw();
 			gPad->SetLogy();
 		}
@@ -131,10 +130,9 @@ void Plot_Measured_Energy_EMC()
 	}
 }
 
-void draw_histogram(const TH1F * const h_base, const particle_type p,
+void draw_histogram(TH1F * const h, const particle_type p,
 		    const int energy_level_gev, const detector d)
 {
-	TH1F *const h = (TH1F *) h_base->Clone();
 	h->SetName(generate_histogram_name(p, energy_level_gev, d));
 
 	TTree *const t = load_tree(generate_file_path(p, energy_level_gev, d),
@@ -178,7 +176,7 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 	if (normalize)
 		h->Scale(1 / h->GetEntries());
 
-	h->SetXTitle("em_cluster_e");
+	h->SetXTitle("E_{cluster} (GeV)");
 	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 
@@ -338,4 +336,12 @@ char *generate_legend_header(const particle_type p, const detector d)
 	}
 
 	return strdup(legend_header.str().c_str());
+}
+
+char *generate_legend_entry_label(const int particle_energy_gev)
+{
+	std::stringstream legend_entry;
+	legend_entry << particle_energy_gev << " GeV";
+
+	return strdup(legend_entry.str().c_str());
 }

@@ -182,7 +182,7 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t true_energy,
 	if (normalize)
 		h->Scale(1 / h->GetEntries());
 
-	h->SetXTitle("em_cluster_e / true_e");
+	h->SetXTitle("E_{cluster} / E_{true}");
 	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 
