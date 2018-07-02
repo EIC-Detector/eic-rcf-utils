@@ -105,7 +105,8 @@ void Plot_Measured_Energy_EMC()
 	for (int d = 0; d < ndetectors; ++d)
 		for (int p = 0; p < nparticles; ++p) {
 			particle_canvases[p]->cd(d + 1);
-			TLegend *const l = new TLegend(0.70, 1, 1, 0.8,
+			gPad->RedrawAxis();
+			TLegend *const l = new TLegend(0.70, .95, 1, 0.8,
 						       generate_legend_header
 						       (particles[p],
 							detectors[d]));
