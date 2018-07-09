@@ -85,6 +85,7 @@ void prob_EMC_e_pi_plotMacro(
   
   gROOT->LoadMacro("/sphenix/user/gregtom3/SBU/research/macros/macros/sPHENIXStyle/sPhenixStyle.C");
   SetsPhenixStyle();
+  gROOT->SetBatch(kTRUE);
 
   /* *
    * Base Histogram
