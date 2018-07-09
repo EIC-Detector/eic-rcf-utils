@@ -22,9 +22,9 @@
 #include "/sphenix/user/gregtom3/SBU/research/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
-const char *const svtx_file_path = "/sphenix/user/giorgian/muons/svtx.root";
+const char *const svtx_file_path {"/sphenix/user/giorgian/muons/svtx.root"};
 
-double MOMENTUM_MARGIN = 0.01;
+double MOMENTUM_MARGIN {0.01};
 
 void Plot_SVTX_Efficiency()
 {
@@ -76,15 +76,15 @@ void Plot_SVTX_Efficiency()
 	Double_t *x {new Double_t[nbins]};
 	Double_t *y {new Double_t[nbins]};
 	Double_t *ey {new Double_t[nbins]};
-	Long64_t top = 0;
-	for (Long64_t i = 0; i < nbins; ++i) {
+	Long64_t top {0};
+	for (Long64_t i {0}; i < nbins; ++i) {
 		if (h_true_count->GetBinContent(i + 1) != 0) {
-			const Double_t n = h_reco_count->GetBinContent(i + 1);
-			const Double_t N = h_true_count->GetBinContent(i + 1);
+			const Double_t n {h_reco_count->GetBinContent(i + 1)};
+			const Double_t N {h_true_count->GetBinContent(i + 1)};
 
-			x[top] = h_true_count->GetBinCenter(i + 1);
-			y[top] = n / N;
-			ey[top++] = sqrt(n / (N * N) + (n * n) / (N * N * N));
+			x[top] {h_true_count->GetBinCenter(i + 1)};
+			y[top] {n / N};
+			ey[top++] {sqrt(n / (N * N) + (n * n) / (N * N * N))};
 		}
 	}
 	TGraphErrors *gr {new TGraphErrors(top, x, y, nullptr, ey)};
@@ -99,7 +99,7 @@ void Plot_SVTX_Efficiency()
 	h_true_count->GetYaxis()->SetRangeUser(0, 2000);
 	h_true_count->Draw();
 	h_reco_count->Draw("SAME");
-	TLegend *l1 {new TLegend(0.80, .90, .95, 0.80, "Track")};
+	TLegend *l1 {new TLegend(0.825, .90, .95, 0.80, "Track")};
 	l1->SetTextSize(0.03);
 	l1->AddEntry(h_true_count, "True", "l");
 	l1->AddEntry(h_reco_count, "Reco", "l");
@@ -110,7 +110,7 @@ void Plot_SVTX_Efficiency()
                                 gStyle->GetCanvasDefW(), gStyle->GetCanvasDefH())};
 	gr->GetYaxis()->SetRangeUser(-0.05, 1);
 	gr->Draw("ALP");
-	TLegend *l2 {new TLegend(0.80, 0.90, 0.95, 0.75, "Track")};
+	TLegend *l2 {new TLegend(0.825, 0.90, 0.95, 0.8, "Track")};
 	l2->SetTextSize(0.03);
 	l2->AddEntry(gr, "Efficiency", "l");
 	l2->Draw();
