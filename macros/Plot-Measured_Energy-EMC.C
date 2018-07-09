@@ -31,8 +31,7 @@ enum detector { cemc, eemc, femc };
 TTree *load_tree(const char *const file_name, const char *const tree_name);
 void draw_histogram(TH1F * const h, const particle_type p,
 		    const int energy_level_gev, const detector d);
-void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
-		    const bool normalize);
+void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value);
 char *generate_histogram_name(const particle_type p,
 			      const int particle_energy_gev, const detector d);
 char *generate_file_path(const particle_type p, const int particle_energy_gev,
@@ -84,7 +83,8 @@ void Plot_Measured_Energy_EMC()
 		TCanvas *const c =
 		    new TCanvas(generate_canvas_name(particles[i]),
 				generate_canvas_title(particles[i]),
-				1200, 400);
+				gStyle->GetCanvasDefW() * ndetectors,
+				gStyle->GetCanvasDefH());
 		c->Divide(ndetectors, 1);
 		particle_canvases.push_back(c);
 	}
@@ -106,18 +106,34 @@ void Plot_Measured_Energy_EMC()
 		for (int p = 0; p < nparticles; ++p) {
 			particle_canvases[p]->cd(d + 1);
 			gPad->RedrawAxis();
-			TLegend *const l = new TLegend(0.70, .95, 1, 0.8,
-						       generate_legend_header
-						       (particles[p],
-							detectors[d]));
-			for (int e = 0; e < nenergy_levels; ++e)
-				l->AddEntry(generate_histogram_name
-					    (particles[p], energy_levels[e],
-					     detectors[d]),
-					    generate_legend_entry_label
-					    (energy_levels[e]), "l");
+			if (d == 0) {
+				TLegend *const l =
+				    new TLegend(0.60, .90, .9, 0.625,
+						generate_legend_header(particles
+								       [p],
+								       detectors
+								       [d]));
+				l->SetTextSize(0.05);
+				for (int e = 0; e < nenergy_levels; ++e)
+					l->AddEntry(generate_histogram_name
+						    (particles[p],
+						     energy_levels[e],
+						     detectors[d]),
+						    generate_legend_entry_label
+						    (energy_levels[e]), "l");
 
-			l->Draw();
+				l->Draw();
+			} else {
+				TLegend *const l =
+				    new TLegend(0.60, .90, .9, 0.85,
+						generate_legend_header(particles
+								       [p],
+								       detectors
+								       [d]));
+				l->SetTextSize(0.05);
+				l->Draw();
+			}
+
 			gPad->SetLogy();
 		}
 
@@ -139,7 +155,12 @@ void draw_histogram(TH1F * const h, const particle_type p,
 	TTree *const t = load_tree(generate_file_path(p, energy_level_gev, d),
 				   "ntp_cluster");
 
-	fill_histogram(h, t, 0.3, true);
+	fill_histogram(h, t, 0.3);
+	h->Scale(1 / h->GetEntries());
+	h->GetYaxis()->SetRangeUser(0.0001, 10);
+	h->SetXTitle("E_{cluster} (GeV)");
+	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
+
 	h->Draw("SAME");
 }
 
@@ -157,8 +178,7 @@ TTree *load_tree(const char *const file_name, const char *const tree_name)
  * entries. The axes titles are furthermore assumed to be generic and have
  * been already set.
  */
-void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
-		    const bool normalize)
+void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value)
 {
 	Float_t measured_energy;
 	Float_t true_energy;
@@ -174,11 +194,6 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value,
 		if (measured_energy > min_value && true_energy > 0.1)
 			h->Fill(measured_energy);
 	}
-	if (normalize)
-		h->Scale(1 / h->GetEntries());
-
-	h->SetXTitle("E_{cluster} (GeV)");
-	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 
 char *strdup(const char *s)
