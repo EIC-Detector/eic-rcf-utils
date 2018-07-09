@@ -23,7 +23,7 @@
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
 const char *const fasttrack_file_path {"/sphenix/user/giorgian/fasttrack-efficiency-10GeV/fasttrack.root"};
-double MOMENTUM_MARGIN {0.01}
+double MOMENTUM_MARGIN {0.01};
 
 void Plot_FastTrack_Efficiency()
 {
@@ -76,9 +76,9 @@ void Plot_FastTrack_Efficiency()
 			const Double_t n {h_reco_count->GetBinContent(i + 1)};
 			const Double_t N {h_true_count->GetBinContent(i + 1)};
 
-			x[top] {h_true_count->GetBinCenter(i + 1)};
-			y[top] {n / N};
-			ey[top++] {sqrt(n / (N * N) + (n * n) / (N * N * N))};
+			x[top] = {h_true_count->GetBinCenter(i + 1)};
+			y[top] = {n / N};
+			ey[top++] = {sqrt(n / (N * N) + (n * n) / (N * N * N))};
 		}
 	}
 	TGraphErrors *gr {new TGraphErrors(top, x, y, nullptr, ey)};

@@ -82,9 +82,9 @@ void Plot_SVTX_Efficiency()
 			const Double_t n {h_reco_count->GetBinContent(i + 1)};
 			const Double_t N {h_true_count->GetBinContent(i + 1)};
 
-			x[top] {h_true_count->GetBinCenter(i + 1)};
-			y[top] {n / N};
-			ey[top++] {sqrt(n / (N * N) + (n * n) / (N * N * N))};
+			x[top] = {h_true_count->GetBinCenter(i + 1)};
+			y[top] = {n / N};
+			ey[top++] = {sqrt(n / (N * N) + (n * n) / (N * N * N))};
 		}
 	}
 	TGraphErrors *gr {new TGraphErrors(top, x, y, nullptr, ey)};
