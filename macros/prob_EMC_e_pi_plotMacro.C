@@ -42,24 +42,26 @@ TH1F* fillHist(TH1F *THE_HIST, TTree *THE_TREE)
     }
   THE_HIST->SetXTitle("Shower Probability");
   THE_HIST->SetYTitle("Counts");
+  
   return THE_HIST;
 }
 
 void histToPNG(TH1F* h_p, TH1F* h_e, char * title, char * saveFileName)
 {
-  TCanvas *cPNG = new TCanvas("cPNG",title,800,400);
+  TCanvas *cPNG = new TCanvas("cPNG",title); // 700 x 500 default
   TImage *img = TImage::Create();
-  
-  gPad->SetLeftMargin(0.3);
+
   h_p->Draw();
   h_e->Draw("SAME");
-  
-  auto legend = new TLegend(0.05,0.7,0.25,0.5,title);
+  h_p->GetXaxis()->SetNdivisions(6,2,0,false);
+  h_p->GetYaxis()->SetNdivisions(5,3,0,false);
+  h_p->GetYaxis()->SetRangeUser(0,5000);
+  auto legend = new TLegend(0.7,0.65,0.95,0.90,title);
   legend->AddEntry(h_p,"Pions","l");
   legend->AddEntry(h_e,"Electrons","l");
+  legend->SetTextSize(0.05);
   legend->Draw();
   gPad->RedrawAxis();
-  
   img->FromPad(cPNG);
   img->WriteImage(saveFileName);
   
