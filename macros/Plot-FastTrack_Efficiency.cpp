@@ -22,7 +22,8 @@
 #include "/sphenix/user/gregtom3/SBU/research/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
-const char *const fasttrack_file_path {"/sphenix/user/giorgian/fasttrack-efficiency-10GeV/fasttrack.root"};
+const char *const fasttrack_file_path 
+        {"/sphenix/user/gregtom3/data/Summer2018/fasttrack-efficiency-10GeV/fasttrack.root"};
 double MOMENTUM_MARGIN {0.01};
 
 void Plot_FastTrack_Efficiency()
