@@ -182,7 +182,7 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t true_energy,
 	if (normalize)
 		h->Scale(1 / h->GetEntries());
 
-	h->SetXTitle("em_cluster_e / true_e");
+	h->SetXTitle("E_{cluster} / E_{true}");
 	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 
@@ -194,7 +194,10 @@ void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 		      const char *const eemc_label,
 		      const char *const femc_label)
 {
-	TCanvas cPNG("cPNG", title, 1200, 400);
+	/* 3 for CEMC, EEMC, and FEMC */
+	const unsigned ndetectors = 3;
+	TCanvas cPNG("cPNG", title, gStyle->GetCanvasDefW() * 3,
+		     gStyle->GetCanvasDefH());
 	TImage *img = TImage::Create();
 
 	cPNG.Divide(3, 1);

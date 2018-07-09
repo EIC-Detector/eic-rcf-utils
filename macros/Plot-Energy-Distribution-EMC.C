@@ -174,7 +174,7 @@ void fill_histogram(TH1F * const h, TTree * const t, const Float_t min_value)
 			h->Fill(measured_energy);
 	}
 
-	h->SetXTitle("em_cluster_e");
+	h->SetXTitle("E_{cluster} (GeV)");
 	h->SetYTitle("entries / #scale[0.5]{#sum} entries      ");
 }
 

@@ -23,55 +23,48 @@
 
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
-const char *const svtx_file_path = "/sphenix/user/giorgian/muons/svtx.root";
-
+const char *const fasttrack_file_path = "/sphenix/user/giorgian/fasttrack-efficiency-10GeV/fasttrack.root";
 double MOMENTUM_MARGIN = 0.01;
 
-void Plot_SVTX_Efficiency() {
+void Plot_FastTrack_Efficiency() {
 	SetsPhenixStyle();
 	gROOT->SetBatch(true);
 
-	TTree *const ntp_gtrack {load_tree(svtx_file_path, "ntp_gtrack")};
-	TTree *const ntp_track {load_tree(svtx_file_path, "ntp_track")};
+	TTree *const tracks {load_tree(fasttrack_file_path, "tracks")};
 
 
-	Long64_t ngtrack {ntp_gtrack->GetEntries()};
-	Long64_t ntrack {ntp_track->GetEntries()};
+	Long64_t ntracks {tracks->GetEntries()};
 
 	TH1F* h_true_count {new TH1F("h_true_count", "Psuedorapidity count", 100, -5, 5)};
 	h_true_count->SetXTitle("#eta");
 	h_true_count->SetYTitle("Count");
 	h_true_count->SetLineColor(kBlue);
-	Float_t geta;
-	ntp_gtrack->SetBranchAddress("geta", &geta);
-	for (Long64_t i {0}; i < ngtrack; ++i) {
-		if (ntp_gtrack->LoadTree(i) < 0)
-			break;
-		ntp_gtrack->GetEntry(i);
-		h_true_count->Fill(geta);
-	}
 	TH1F* h_reco_count {new TH1F("h_reco_count", "Psuedorapidity count", 100, -5, 5)};
 	h_reco_count->SetXTitle("#eta");
 	h_reco_count->SetYTitle("Count");
 	h_reco_count->SetLineColor(kRed);
 	Float_t gpx, gpy, gpz, px, py, pz;
-	ntp_track->SetBranchAddress("geta", &geta);
-	ntp_track->SetBranchAddress("gpx", &gpx);
-	ntp_track->SetBranchAddress("gpy", &gpy);
-	ntp_track->SetBranchAddress("gpz", &gpz);
-	ntp_track->SetBranchAddress("px", &px);
-	ntp_track->SetBranchAddress("py", &py);
-	ntp_track->SetBranchAddress("pz", &pz);
-	std::unordered_map<Float_t, unsigned> track_count;
-	for (Long64_t i = 0; i < ntrack; ++i) {
-		if (ntp_track->LoadTree(i) < 0)
+	tracks->SetBranchAddress("gpx", &gpx);
+	tracks->SetBranchAddress("gpy", &gpy);
+	tracks->SetBranchAddress("gpz", &gpz);
+	tracks->SetBranchAddress("px", &px);
+	tracks->SetBranchAddress("py", &py);
+	tracks->SetBranchAddress("pz", &pz);
+	for (Long64_t i {0}; i < ntracks; ++i) {
+		if (tracks->LoadTree(i) < 0)
 			break;
+		tracks->GetEntry(i);
+		const double mom {std::sqrt(px*px+py*py+pz*pz)};
+		const double eta {0.5*std::log((mom+pz)/(mom-pz))};
+		const double gmom {std::sqrt(gpx*gpx+gpy*gpy+gpz*gpz)};
+		const double geta {0.5*std::log( (gmom+gpz)/(gmom-gpz))};
 
-		ntp_track->GetEntry(i);
+		h_true_count->Fill(geta);
 		if (fabs((px - gpx)/gpx) < MOMENTUM_MARGIN
-		&& fabs((py - gpy)/gpy) < MOMENTUM_MARGIN
-		&& fabs((pz - gpz)/gpz) < MOMENTUM_MARGIN)
+			&& fabs((py - gpy)/gpy) < MOMENTUM_MARGIN
+			&& fabs((pz - gpz)/gpz) < MOMENTUM_MARGIN)
 			h_reco_count->Fill(geta);
+
 	}
 
 	const Long64_t nbins {h_true_count->GetSize() - 2}; /* -2 for underflow and overflow */
@@ -96,7 +89,7 @@ void Plot_SVTX_Efficiency() {
 	gr->GetXaxis()->SetTitle("#eta");
 	gr->GetYaxis()->SetTitle("Efficiency");
 
-	TCanvas* count {new TCanvas("count", "SVTX Event Count", 800, 600)};
+	TCanvas* count {new TCanvas("count", "FastTrack Event Count", 800, 600)};
 	h_true_count->GetYaxis()->SetRangeUser(0, 1500);
 	h_true_count->Draw();
 	h_reco_count->Draw("SAME");
@@ -107,7 +100,7 @@ void Plot_SVTX_Efficiency() {
 	l1->AddEntry(h_reco_count, "Reco", "l");
 	l1->Draw();
 
-	TCanvas* efficiency {new TCanvas("efficiency", "SVTX Efficiency", 800, 600)};
+	TCanvas* efficiency {new TCanvas("efficiency", "FastTrack Efficiency", 800, 600)};
 	gr->GetYaxis()->SetRangeUser(-0.05, 1);
 	gr->Draw("ALP");
 	gPad->RedrawAxis();
@@ -119,12 +112,12 @@ void Plot_SVTX_Efficiency() {
 	TImage *const img {TImage::Create()};
 	img->FromPad(count);
 	std::stringstream name;
-	name << "SVTX_Event_Count-" << "margin=" << MOMENTUM_MARGIN << ".png";
+	name << "FastTrack_Event_Count-" << "margin=" << MOMENTUM_MARGIN << ".png";
 	img->WriteImage(strdup(name.str().c_str()));
 
 	name.str("");
 	img->FromPad(efficiency);
-	name << "SVTX_Efficiency-" << "margin=" << MOMENTUM_MARGIN << ".png";
+	name << "FastTrack_Efficiency-" << "margin=" << MOMENTUM_MARGIN << ".png";
 	img->WriteImage(strdup(name.str().c_str()));
 	gApplication->Terminate(0);
 }
@@ -135,13 +128,13 @@ TTree *load_tree(const char *const file_name, const char *const tree_name)
 }
 
 int main(int argc, char *argv[]) {
-	TApplication app("SVTX Efficiency Plots", &argc, argv);
+	TApplication app("FastTrack Efficiency Plots", &argc, argv);
 	if (argc > 1) {
 		std::stringstream tmp {argv[1]};
 		tmp >> MOMENTUM_MARGIN;
 	}
 
-	Plot_SVTX_Efficiency();
+	Plot_FastTrack_Efficiency();
 	app.Run();
 	return 0;
 }
