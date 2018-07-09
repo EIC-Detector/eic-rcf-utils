@@ -194,7 +194,10 @@ void histogram_to_png(TH1F * const h_pion_CEMC, TH1F * const h_electron_CEMC,
 		      const char *const eemc_label,
 		      const char *const femc_label)
 {
-	TCanvas cPNG("cPNG", title, 1200, 400);
+	/* 3 for CEMC, EEMC, and FEMC */
+	const unsigned ndetectors = 3;
+	TCanvas cPNG("cPNG", title, gStyle->GetCanvasDefW() * 3,
+		     gStyle->GetCanvasDefH());
 	TImage *img = TImage::Create();
 
 	cPNG.Divide(3, 1);
