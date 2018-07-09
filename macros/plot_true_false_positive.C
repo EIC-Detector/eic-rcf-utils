@@ -358,7 +358,7 @@ int plot_true_false_positive()
       else
 	{
 	  c_FEMC->cd(2);
-	  graphs_FEMC[i]->Draw("P");
+	  graphs_FEMC[i]->Draw("PSame");
 	}
      }
    c_FEMC->cd(1);
