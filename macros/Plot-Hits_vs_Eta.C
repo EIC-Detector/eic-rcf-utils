@@ -26,7 +26,6 @@
 
 
 TTree *load_tree(const char *const file_name, const char *const tree_name);
-void fill_histogram(TH1F * const h, TTree * const t);
 const char *const svtx_file_path {"/sphenix/user/giorgian/hits-per-eta/hitcount.root"};
 
 const char *const hit_containers[] {"G4HIT_EGEM_0", "G4HIT_EGEM_1", "G4HIT_EGEM_3", 
@@ -47,33 +46,22 @@ void Plot_Hit_Count() {
 		hits->SetBranchAddress("hit_count", &hit_count);
 
 		Long64_t nentries {hits->GetEntries()};
-		Double_t *x {new Double_t[nentries]};
-		Double_t *y {new Double_t[nentries]};
+		TH1F h {hit_containers[i], "Hit Count", 100, -4.5, 4.5};
 		for (Long64_t i {0}; i < nentries; ++i) {
 			if (hits->LoadTree(i) < 0)
 				break;
 			hits->GetEntry(i);
-			x[i] = eta;
-			y[i] = hit_count;
+			h.Fill(eta, hit_count);
 		}
 
 
 		TCanvas c {"hits", "Hits", gStyle->GetCanvasDefW(), gStyle->GetCanvasDefH()};
-		TGraph *gr {new TGraphErrors(nentries, x, y)};
-		gr->SetMarkerColor(kBlue);
-		gr->SetMarkerStyle(21);
-		gr->SetMarkerSize(0.5);
-		gr->GetXaxis()->SetTitle("#eta");
-		gr->GetYaxis()->SetTitle("Hit Count");
-//		gr->Draw("ALP");
+		h.Draw();
 
-		hits->Draw("eta","hit_count");
-
-		TLegend *l {new TLegend(0.65, 0.9, 0.95, 0.8, "Detector")};
-		l->SetTextSize(0.03);
-//		l->AddEntry(gr, "Normalized Hit Count", "l");
-		l->AddEntry(hits, hit_containers[i], "l");
-		l->Draw();
+		TLegend l {0.65, 0.9, 0.95, 0.8, "Detector"};
+		l.SetTextSize(0.03);
+		l.AddEntry(&h, hit_containers[i], "l");
+		l.Draw();
 		gPad->RedrawAxis();
 
 
@@ -82,26 +70,6 @@ void Plot_Hit_Count() {
 		img->WriteImage((std::string(hit_containers[i]) + ".png").c_str());
 	}
 	gApplication->Terminate(0);
-}
-
-void fill_histogram(TH1F * const h, TTree * const t)
-{
-	Float_t px, py, pz;
-	t->SetBranchAddress("px", &px);
-	t->SetBranchAddress("py", &py);
-	t->SetBranchAddress("pz", &pz);
-
-	Int_t nentries = Int_t(t->GetEntries());
-
-	for (Int_t i = 0; i < nentries; ++i) {
-		if (t->LoadTree(i) < 0)
-			break;
-
-		t->GetEntry(i);
-		const double mom {std::sqrt(px * px + py * py + pz * pz)};
-		const double eta {0.5 *std::log((mom + pz) / (mom - pz))};
-		h->Fill(eta);
-	}
 }
 
 TTree *load_tree(const char *const file_name, const char *const tree_name)
