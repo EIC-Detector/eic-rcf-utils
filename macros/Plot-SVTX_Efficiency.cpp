@@ -21,24 +21,23 @@
 #include "TGraphErrors.h"
 #include "/sphenix/user/gregtom3/SBU/research/macros/macros/sPHENIXStyle/sPhenixStyle.C"
 
-
 TTree *load_tree(const char *const file_name, const char *const tree_name);
-const char *const svtx_file_path = "/sphenix/user/giorgian/muons/svtx.root";
+const char *const svtx_file_path {"/sphenix/user/giorgian/muons/svtx.root"};
 
-double MOMENTUM_MARGIN = 0.01;
+double MOMENTUM_MARGIN {0.01};
 
-void Plot_SVTX_Efficiency() {
+void Plot_SVTX_Efficiency()
+{
 	SetsPhenixStyle();
 	gROOT->SetBatch(true);
 
 	TTree *const ntp_gtrack {load_tree(svtx_file_path, "ntp_gtrack")};
 	TTree *const ntp_track {load_tree(svtx_file_path, "ntp_track")};
 
-
 	Long64_t ngtrack {ntp_gtrack->GetEntries()};
 	Long64_t ntrack {ntp_track->GetEntries()};
 
-	TH1F* h_true_count {new TH1F("h_true_count", "Psuedorapidity count", 100, -5, 5)};
+	TH1F *h_true_count {new TH1F("h_true_count", "Psuedorapidity count", 100, -5, 5)};
 	h_true_count->SetXTitle("#eta");
 	h_true_count->SetYTitle("Count");
 	h_true_count->SetLineColor(kBlue);
@@ -50,7 +49,7 @@ void Plot_SVTX_Efficiency() {
 		ntp_gtrack->GetEntry(i);
 		h_true_count->Fill(geta);
 	}
-	TH1F* h_reco_count {new TH1F("h_reco_count", "Psuedorapidity count", 100, -5, 5)};
+	TH1F *h_reco_count {new TH1F("h_reco_count", "Psuedorapidity count", 100, -5, 5)};
 	h_reco_count->SetXTitle("#eta");
 	h_reco_count->SetYTitle("Count");
 	h_reco_count->SetLineColor(kRed);
@@ -62,31 +61,30 @@ void Plot_SVTX_Efficiency() {
 	ntp_track->SetBranchAddress("px", &px);
 	ntp_track->SetBranchAddress("py", &py);
 	ntp_track->SetBranchAddress("pz", &pz);
-	std::unordered_map<Float_t, unsigned> track_count;
-	for (Long64_t i = 0; i < ntrack; ++i) {
+	for (Long64_t i {0}; i < ntrack; ++i) {
 		if (ntp_track->LoadTree(i) < 0)
 			break;
 
 		ntp_track->GetEntry(i);
-		if (fabs((px - gpx)/gpx) < MOMENTUM_MARGIN
-		&& fabs((py - gpy)/gpy) < MOMENTUM_MARGIN
-		&& fabs((pz - gpz)/gpz) < MOMENTUM_MARGIN)
+		if (fabs((px - gpx) / gpx) < MOMENTUM_MARGIN
+		    && fabs((py - gpy) / gpy) < MOMENTUM_MARGIN
+		    && fabs((pz - gpz) / gpz) < MOMENTUM_MARGIN)
 			h_reco_count->Fill(geta);
 	}
 
-	const Long64_t nbins {h_true_count->GetSize() - 2}; /* -2 for underflow and overflow */
+	const Long64_t nbins {h_true_count->GetSize() - 2};	/* -2 for underflow and overflow */
 	Double_t *x {new Double_t[nbins]};
 	Double_t *y {new Double_t[nbins]};
-	Double_t *ey = {new Double_t[nbins]};
-	Long64_t top = 0;
-	for (Long64_t i = 0; i < nbins; ++i) {
+	Double_t *ey {new Double_t[nbins]};
+	Long64_t top {0};
+	for (Long64_t i {0}; i < nbins; ++i) {
 		if (h_true_count->GetBinContent(i + 1) != 0) {
-			const Double_t n = h_reco_count->GetBinContent(i + 1);
-			const Double_t N = h_true_count->GetBinContent(i + 1);
+			const Double_t n {h_reco_count->GetBinContent(i + 1)};
+			const Double_t N {h_true_count->GetBinContent(i + 1)};
 
-			x[top] = h_true_count->GetBinCenter(i + 1);
-			y[top] = n / N;
-			ey[top++] = sqrt(n/(N*N) + (n*n)/(N*N*N));
+			x[top] = {h_true_count->GetBinCenter(i + 1)};
+			y[top] = {n / N};
+			ey[top++] = {sqrt(n / (N * N) + (n * n) / (N * N * N))};
 		}
 	}
 	TGraphErrors *gr {new TGraphErrors(top, x, y, nullptr, ey)};
@@ -96,25 +94,27 @@ void Plot_SVTX_Efficiency() {
 	gr->GetXaxis()->SetTitle("#eta");
 	gr->GetYaxis()->SetTitle("Efficiency");
 
-	TCanvas* count {new TCanvas("count", "SVTX Event Count", 800, 600)};
-	h_true_count->GetYaxis()->SetRangeUser(0, 1500);
+	TCanvas *count {new TCanvas("count", "SVTX Event Count",
+			    gStyle->GetCanvasDefW(), gStyle->GetCanvasDefH())};
+	h_true_count->GetYaxis()->SetRangeUser(0, 2000);
 	h_true_count->Draw();
 	h_reco_count->Draw("SAME");
-	gPad->RedrawAxis();
-	TLegend *l1 {new TLegend(0.85, .95, .95, 0.85, "Track")};
+	TLegend *l1 {new TLegend(0.825, .90, .95, 0.80, "Track")};
 	l1->SetTextSize(0.03);
 	l1->AddEntry(h_true_count, "True", "l");
 	l1->AddEntry(h_reco_count, "Reco", "l");
 	l1->Draw();
+	gPad->RedrawAxis();
 
-	TCanvas* efficiency {new TCanvas("efficiency", "SVTX Efficiency", 800, 600)};
+	TCanvas *efficiency {new TCanvas("efficiency", "SVTX Efficiency",
+                                gStyle->GetCanvasDefW(), gStyle->GetCanvasDefH())};
 	gr->GetYaxis()->SetRangeUser(-0.05, 1);
 	gr->Draw("ALP");
-	gPad->RedrawAxis();
-	TLegend *l2 {new TLegend(0.80, 0.95, 0.95, 0.80, "Track")};
+	TLegend *l2 {new TLegend(0.825, 0.90, 0.95, 0.8, "Track")};
 	l2->SetTextSize(0.03);
 	l2->AddEntry(gr, "Efficiency", "l");
 	l2->Draw();
+	gPad->RedrawAxis();
 
 	TImage *const img {TImage::Create()};
 	img->FromPad(count);
@@ -134,8 +134,9 @@ TTree *load_tree(const char *const file_name, const char *const tree_name)
 	return (TTree *) (new TFile(file_name, "READ"))->Get(tree_name);
 }
 
-int main(int argc, char *argv[]) {
-	TApplication app("SVTX Efficiency Plots", &argc, argv);
+int main(int argc, char *argv[])
+{
+	TApplication app {"SVTX Efficiency Plots", &argc, argv};
 	if (argc > 1) {
 		std::stringstream tmp {argv[1]};
 		tmp >> MOMENTUM_MARGIN;
@@ -145,4 +146,3 @@ int main(int argc, char *argv[]) {
 	app.Run();
 	return 0;
 }
-
