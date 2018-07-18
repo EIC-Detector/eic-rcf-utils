@@ -31,12 +31,12 @@ const char *fasttrack_file_path = NULL;
 
 using namespace std;
 
-void plot(const std::vector<double> d, const char *save_file_path, const char *x_title) {
+void plot(std::vector<double>& d, const char *save_file_path, const char *x_title) {
 	std::sort(std::begin(d), std::end(d));
 	const double total {accumulate(std::begin(d), std::end(d), 0.0, std::plus<double>())};
 	const double mean {total / d.size()};
 	double std {std::accumulate(std::begin(d), std::end(d), 0.0, [mean](double acc, double x) {
-			return acc + std::pow(x - mom_mean, 2);
+			return acc + std::pow(x - mean, 2);
 	})};
 	std /= d.size();
 	std = std::sqrt(std);
@@ -53,14 +53,16 @@ void plot(const std::vector<double> d, const char *save_file_path, const char *x
 
 	d.erase(std::remove_if(std::begin(d), std::end(d), [fence_min, fence_max](double x) {
 		return !(fence_min <= x && x <= fence_max);
-	}));
+	}), end(d));
 
 	cout << x_title << "total: " << total << '\n';
 	cout << x_title << "mean: " << mean << '\n';
 	cout << x_title << "std: " << std << '\n';
 
-	TH1F *h {new TH1F(save_file_path, save_file_path, (int) pow(2, log(moms.size())/log(3)),
-			mom_mean - mom_nsigma * mom_std, mom_mean + mom_nsigma * mom_std)};
+
+	double width {2 * iqr / std::pow(d.size(), 1.0/3.0)};
+	double nbins {(d.back() - d.front()) / width};
+	TH1F *h {new TH1F(save_file_path, save_file_path, std::ceil(nbins), d.front(), d.back())};
 	h->GetXaxis()->SetTitle(x_title);
 	h->GetYaxis()->SetTitle("Count");
 
@@ -80,7 +82,7 @@ void plot(const std::vector<double> d, const char *save_file_path, const char *x
 void Plot_FastTrack_Efficiency()
 {
 	SetsPhenixStyle();
-//	gROOT->SetBatch(true);
+	gROOT->SetBatch(true);
 
 	TTree *const tracks {load_tree(fasttrack_file_path, "tracks")};
 
@@ -134,13 +136,12 @@ void Plot_FastTrack_Efficiency()
 
 	name.str("");
 	name << "Theta-" << "momentum=" << gmom << "&theta=" << gtheta << ".png";
-	img->WriteImage(strdup(name.str().c_str()));
 	plot(thetas, name.str().c_str(), "#theta_{reco} (rad)");
 
 	name.str();
 	name << "Phi-" << "momentum=" << gmom << "&theta=" << gtheta << ".png";
 	plot(phis, name.str().c_str(), "#Phi_{reco} - #Phi_{true} (rad)");
-//	gApplication->Terminate(0); */
+	gApplication->Terminate(0); 
 }
 
 TTree *load_tree(const char *const file_name, const char *const tree_name)
