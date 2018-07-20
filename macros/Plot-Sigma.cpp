@@ -33,14 +33,6 @@ using namespace std;
 
 void plot(std::vector<double>& d, const char *save_file_path, const char *x_title) {
 	std::sort(std::begin(d), std::end(d));
-	const double total {accumulate(std::begin(d), std::end(d), 0.0, std::plus<double>())};
-	const double mean {total / d.size()};
-	double std {std::accumulate(std::begin(d), std::end(d), 0.0, [mean](double acc, double x) {
-			return acc + std::pow(x - mean, 2);
-	})};
-	std /= d.size();
-	std = std::sqrt(std);
-
 	/* Remove outliers, determined by a generous cut of 2.5 * IQR */
 	const double fence_size {2.5};
 
@@ -54,6 +46,14 @@ void plot(std::vector<double>& d, const char *save_file_path, const char *x_titl
 	d.erase(std::remove_if(std::begin(d), std::end(d), [fence_min, fence_max](double x) {
 		return !(fence_min <= x && x <= fence_max);
 	}), end(d));
+
+	const double total {accumulate(std::begin(d), std::end(d), 0.0, std::plus<double>())};
+	const double mean {total / d.size()};
+	double std {std::accumulate(std::begin(d), std::end(d), 0.0, [mean](double acc, double x) {
+			return acc + std::pow(x - mean, 2);
+	})};
+	std /= d.size();
+	std = std::sqrt(std);
 
 	cout << x_title << "total: " << total << '\n';
 	cout << x_title << "mean: " << mean << '\n';
