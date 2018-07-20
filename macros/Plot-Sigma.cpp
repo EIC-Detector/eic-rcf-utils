@@ -44,9 +44,9 @@ void plot(std::vector<double>& d, const char *save_file_path, const char *x_titl
 	/* Remove outliers, determined by a generous cut of 2.5 * IQR */
 	const double fence_size {2.5};
 
-	const double q1 {d[d.size() / 4]};
-	const double q3 {d[(d.size() * 3) / 4]};
-	const double iqr {q3 - q1};
+	double q1 {d[d.size() / 4]};
+	double q3 {d[(d.size() * 3) / 4]};
+	double iqr {q3 - q1};
 	const double fence_min {q1 - fence_size * iqr};
 	const double fence_max {q3 + fence_size * iqr};
 
@@ -60,8 +60,11 @@ void plot(std::vector<double>& d, const char *save_file_path, const char *x_titl
 	cout << x_title << "std: " << std << '\n';
 
 
-	double width {2 * iqr / std::pow(d.size(), 1.0/3.0)};
-	double nbins {(d.back() - d.front()) / width};
+	q1 = d[d.size() / 4];
+	q3 = d[(d.size() * 3) / 4];
+	iqr = q3 - q1;
+	const double width {2 * iqr / std::pow(d.size(), 1.0/3.0)};
+	const double nbins {(d.back() - d.front()) / width};
 	TH1F *h {new TH1F(save_file_path, save_file_path, std::ceil(nbins), d.front(), d.back())};
 	h->GetXaxis()->SetTitle(x_title);
 	h->GetYaxis()->SetTitle("Count");
@@ -79,7 +82,7 @@ void plot(std::vector<double>& d, const char *save_file_path, const char *x_titl
 	img->WriteImage(save_file_path);
 }
 
-void Plot_FastTrack_Efficiency()
+void Plot_Sigma()
 {
 	SetsPhenixStyle();
 	gROOT->SetBatch(true);
@@ -138,7 +141,7 @@ void Plot_FastTrack_Efficiency()
 	name << "Theta-" << "momentum=" << gmom << "&theta=" << gtheta << ".png";
 	plot(thetas, name.str().c_str(), "#theta_{reco} (rad)");
 
-	name.str();
+	name.str("");
 	name << "Phi-" << "momentum=" << gmom << "&theta=" << gtheta << ".png";
 	plot(phis, name.str().c_str(), "#Phi_{reco} - #Phi_{true} (rad)");
 	gApplication->Terminate(0); 
@@ -157,7 +160,7 @@ int main(int argc, char *argv[])
 	}
 
 	TApplication app {"Sigma Plots", &argc, argv};
-	Plot_FastTrack_Efficiency();
+	Plot_Sigma();
 	app.Run();
 	return 0;
 }
