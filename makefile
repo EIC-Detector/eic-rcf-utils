@@ -1,4 +1,4 @@
-all: bin/merge-trees bin/Plot-SVTX_Efficiency bin/Plot-FastTrack_Efficiency bin/run-particle-gun.sh bin/run-pythia.sh bin/Plot-Sigma bin/Generate-Sigma-CSV
+all: bin/merge-trees bin/Plot-SVTX_Efficiency bin/Plot-FastTrack_Efficiency bin/run-particle-gun.sh bin/run-pythia.sh bin/Plot-Sigma bin/Generate-Sigma-CSV bin/condor-status.sh
 
 bin/merge-trees:
 	g++ -O2 -std=c++11 -o bin/merge-trees condor-tools/merge-trees.cpp `root-config --cflags --libs`
@@ -18,7 +18,11 @@ bin/run-particle-gun.sh:
 bin/run-pythia.sh:
 	cp condor-tools/run-pythia.sh bin/
 
-add-to-path: bin/merge-trees bin/Plot-SVTX_Efficiency bin/Plot-FastTrack_Efficiency bin/run-particle-gun.sh bin/run-pythia.sh
+bin/condor-status.sh:
+	cp condor-tools/condor-status.sh bin/
+
+
+add-to-path: bin/merge-trees bin/Plot-SVTX_Efficiency bin/Plot-FastTrack_Efficiency bin/run-particle-gun.sh bin/run-pythia.sh bin/condor-status.sh
 	./add-to-path.sh
 
 clean:
