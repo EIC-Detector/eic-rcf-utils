@@ -144,7 +144,7 @@ void Plot_Sigma()
 	  double std_err {p.second.second};
 
 	  if (std == std) // check for NaN
-	    fout << gmom << ',' << gtheta << ',' << std << std_err << ',' << mean << ',' << mean_err << '\n';
+	    fout << gmom << ',' << gtheta << ',' << std << ',' << std_err << ',' << mean << ',' << mean_err << '\n';
 	  fout.close();
 	}
 
@@ -156,7 +156,7 @@ void Plot_Sigma()
 	  double std {p.second.first};
 	  double std_err {p.second.second};
 	  if (std == std) // check for NaN
-	    fout << gmom << ',' << gtheta << ',' << std << std_err << ',' << mean << ',' << mean_err << '\n';
+	    fout << gmom << ',' << gtheta << ',' << std << ',' << std_err << ',' << mean << ',' << mean_err << '\n';
 	  fout.close();
 	}
 
@@ -168,7 +168,7 @@ void Plot_Sigma()
 	  double std {p.second.first};
 	  double std_err {p.second.second};
 	  if (std == std) // check for NaN
-	    fout << gmom << ',' << gtheta << ',' << std << std_err << ',' << mean << ',' << mean_err << '\n';
+	    fout << gmom << ',' << gtheta << ',' << std << ',' << std_err << ',' << mean << ',' << mean_err << '\n';
 	  fout.close();
 	}
 
