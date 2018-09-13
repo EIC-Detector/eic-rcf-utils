@@ -14,6 +14,7 @@
 #include <algorithm>
 
 #include "TFile.h"
+#include "TF1.h"
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -30,10 +31,12 @@ const char *fasttrack_file_path = NULL;
 
 using namespace std;
 
-double get_std(std::vector<double>& d) {
+using dpair = std::pair<double, double>;
+
+std::pair<dpair, dpair> get_std(std::vector<double>& d) {
 	std::sort(std::begin(d), std::end(d));
-	/* Remove outliers, determined by a generous cut of 2.5 * IQR */
-	const double fence_size {2.5};
+	/* Remove outliers, determined by a generous cut of 4.5 * IQR */
+	const double fence_size {2};
 
 	double q1 {d[d.size() / 4]};
 	double q3 {d[(d.size() * 3) / 4]};
@@ -46,15 +49,38 @@ double get_std(std::vector<double>& d) {
 		return !(fence_min <= x && x <= fence_max);
 	}), end(d));
 
-	const double total {accumulate(std::begin(d), std::end(d), 0.0, std::plus<double>())};
-	const double mean {total / d.size()};
-	double std {std::accumulate(std::begin(d), std::end(d), 0.0, [mean](double acc, double x) {
-			return acc + std::pow(x - mean, 2);
-	})};
-	std /= d.size();
-	std = std::sqrt(std);
+//	const double total {accumulate(std::begin(d), std::end(d), 0.0, std::plus<double>())};
+//	const double mean {total / d.size()};
+//	double std {std::accumulate(std::begin(d), std::end(d), 0.0, [mean](double acc, double x) {
+//			return acc + std::pow(x - mean, 2);
+//	})};
+//
+//	std /= (d.size() - 1);
+//	std = std::sqrt(std);
+//
+//	return std;
+	const double width {2 * iqr / std::pow(d.size(), 1.0/3.0)};
+	const double nbins {(d.back() - d.front()) / width};
+	TH1F *hmom {new TH1F("hmom", "", std::ceil(nbins), d.front(), d.back())};
+      
+	for (const double& m: d) {
+	  hmom->Fill(m);
+	}
 
-	return std;
+	TF1* fgaus = new TF1("fgaus", "gaus(0)");
+	
+	fgaus->SetParameter(0,hmom->GetEntries());
+	fgaus->SetParameter(1,hmom->GetMean());
+	fgaus->SetParameter(2,hmom->GetRMS());
+
+	hmom->Fit(fgaus);
+
+	double mean = fgaus->GetParameter(1);
+	double mean_err = fgaus->GetParError(1);
+	double std = fgaus->GetParameter(2);
+	double std_err = fgaus->GetParError(2);
+
+	return {{mean, mean_err}, {std, std_err}};
 }
 
 void Plot_Sigma()
@@ -88,7 +114,7 @@ void Plot_Sigma()
 			break;
 
 		tracks->GetEntry(i);
-		if (px == -9999 || py == -9999 || pz == -9999) 
+		if (px == -9999 || py == -9999 || pz == -9999)
 			continue;
 
 		const double mom {sqrt(px * px + py * py + pz * pz)};
@@ -105,26 +131,46 @@ void Plot_Sigma()
 
 	
 	if (!moms.size())
-		return;
+		gApplication->Terminate(0); 
 
 
 	std::ofstream fout {"Momentum_Sigma.csv"};
-	double std {get_std(moms)};
-	if (std == std) // check for NaN
-		fout << gmom << ',' << gtheta << ',' << std << '\n';
-	fout.close();
+	//	double std {get_std(moms)};
+	{
+	  std::pair<dpair, dpair> p {get_std(moms)};
+	  double mean {p.first.first};
+	  double mean_err {p.first.second};
+	  double std {p.second.first};
+	  double std_err {p.second.second};
+
+	  if (std == std) // check for NaN
+	    fout << gmom << ',' << gtheta << ',' << std << std_err << ',' << mean << ',' << mean_err << '\n';
+	  fout.close();
+	}
 
 	fout.open("Theta_Sigma.csv");
-	std = get_std(thetas);
-	if (std == std) // check for NaN
-		fout << gmom << ',' << gtheta << ',' << std << '\n';
-	fout.close();
+	{
+	  std::pair<dpair, dpair> p {get_std(moms)};
+	  double mean {p.first.first};
+	  double mean_err {p.first.second};
+	  double std {p.second.first};
+	  double std_err {p.second.second};
+	  if (std == std) // check for NaN
+	    fout << gmom << ',' << gtheta << ',' << std << std_err << ',' << mean << ',' << mean_err << '\n';
+	  fout.close();
+	}
 
 	fout.open("Phi_Sigma.csv");
-	std = get_std(phis);
-	if (std == std) // check for NaN
-		fout << gmom << ',' << gtheta << ',' << std << '\n';
-	fout.close();
+	{
+	  std::pair<dpair, dpair> p {get_std(moms)};
+	  double mean {p.first.first};
+	  double mean_err {p.first.second};
+	  double std {p.second.first};
+	  double std_err {p.second.second};
+	  if (std == std) // check for NaN
+	    fout << gmom << ',' << gtheta << ',' << std << std_err << ',' << mean << ',' << mean_err << '\n';
+	  fout.close();
+	}
 
 	gApplication->Terminate(0); 
 }

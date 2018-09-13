@@ -15,6 +15,7 @@
 #include <algorithm>
 
 #include "TFile.h"
+#include "TF1.h"
 #include "TTree.h"
 #include "TCanvas.h"
 #include "TLegend.h"
@@ -66,11 +67,21 @@ void plot(std::vector<double>& d, const char *save_file_path, const char *x_titl
 	const double width {2 * iqr / std::pow(d.size(), 1.0/3.0)};
 	const double nbins {(d.back() - d.front()) / width};
 	TH1F *h {new TH1F(save_file_path, save_file_path, std::ceil(nbins), d.front(), d.back())};
+
 	h->GetXaxis()->SetTitle(x_title);
 	h->GetYaxis()->SetTitle("Count");
 
 	for (const auto& x: d)
 		h->Fill(x);
+
+	TF1* fgaus = new TF1("fgaus", "gaus(0)");
+	
+	fgaus->SetParameter(0,h->GetEntries());
+	fgaus->SetParameter(1,h->GetMean());
+	fgaus->SetParameter(2,h->GetRMS());
+
+	h->Fit(fgaus);
+
 
 	TCanvas *c {new TCanvas(save_file_path, save_file_path,
 			gStyle->GetCanvasDefW(), gStyle->GetCanvasDefH())};
